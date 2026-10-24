@@ -24,7 +24,7 @@ define('MAX_UPLOAD', 10 * 1024 * 1024);
 
 // Automatisch abmelden nach so vielen Minuten ohne Tätigkeit (Schutz bei
 // vergessenem Abmelden, z. B. an einem fremden PC)
-define('SITZUNG_MINUTEN', 60);
+define('SITZUNG_MINUTEN', 13);
 
 // Internet-Ordner mit den PDF-Handbüchern (Gesamthandbuch und je Rolle).
 // Darauf verweisen die Links oben auf der Hilfe-Seite; der Ordner ist auch das
