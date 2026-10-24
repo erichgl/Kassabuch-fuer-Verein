@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Kassabuch – Benutzerhandbuch</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm 20mm 18mm; }
+  @page :first { margin: 0; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  :root {
+    --text: #1f2421; --leise: #5f655f; --linie: #d9d7cf; --akzent: #1f6f5c; --akzent-hell: #e3f1ec;
+    --gelb: #f6c400; --gruen: #7cab4f; --blau: #1d5ea8;
+  }
+  html { font-family: "Inter", "DejaVu Sans", sans-serif; font-size: 10.2pt; color: var(--text); line-height: 1.5; }
+  body { margin: 0; }
+  h1, h2, h3 { font-family: "Inter Display", "Inter", sans-serif; line-height: 1.2; color: #14201b; }
+  h1 { font-size: 21pt; margin: 0 0 4mm; font-weight: 700; break-before: page; padding-top: 2mm; }
+  h1 .nr { color: var(--akzent); margin-right: 3mm; }
+  h2 { font-size: 13pt; margin: 7mm 0 2.5mm; font-weight: 650; break-after: avoid; }
+  h3 { font-size: 11pt; margin: 5mm 0 1.5mm; font-weight: 650; break-after: avoid; }
+  p { margin: 0 0 2.6mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin-bottom: 1.2mm; }
+  strong { font-weight: 650; }
+  code, .mono { font-family: "DejaVu Sans Mono", monospace; font-size: 8.6pt; }
+  .lead { font-size: 11pt; color: #333; }
+
+  /* Deckblatt */
+  .deckblatt { height: 297mm; width: 210mm; position: relative; overflow: hidden; padding: 26mm 22mm; break-after: page; }
+  .deckblatt::before { content: ""; position: absolute; right: -45mm; bottom: -40mm; width: 190mm; height: 190mm;
+    background: url("img/hintergrund.png") center / contain no-repeat; opacity: .9; }
+  .deckblatt .banner { width: 100%; border-radius: 3mm; box-shadow: 0 1mm 4mm rgba(0,0,0,.12); }
+  .deckblatt .titel { margin-top: 38mm; position: relative; }
+  .deckblatt .titel .klein { font-size: 11pt; letter-spacing: .14em; text-transform: uppercase; color: var(--akzent); font-weight: 600; }
+  .deckblatt .titel h1 { font-size: 40pt; margin: 3mm 0 2mm; break-before: auto; padding: 0; }
+  .deckblatt .titel .unter { font-size: 15pt; color: #3c443f; }
+  .deckblatt .meta { position: absolute; left: 22mm; bottom: 24mm; font-size: 9.5pt; color: var(--leise); line-height: 1.7; }
+  .deckblatt .meta strong { color: var(--text); }
+  /* QR-Karte auf dem Deckblatt: Link zur aktuellen Online-Fassung (wie auf der Hilfe-Seite) */
+  .deckblatt .qr-karte { position: absolute; right: 22mm; bottom: 20mm; width: 56mm; padding: 4.5mm 4mm 3.6mm; background: #fff;
+    border: .35mm solid #cfe3da; border-radius: 4mm; box-shadow: 0 1.2mm 5mm rgba(29,79,66,.16); text-align: center; z-index: 1; }
+  .deckblatt .qr-bild { position: relative; width: 40mm; height: 40mm; margin: 0 auto; }
+  .deckblatt .qr-bild > img { width: 100%; height: 100%; display: block; }
+  .deckblatt .qr-logo { position: absolute; left: 50%; top: 50%; width: 9.5mm; height: 9.5mm; transform: translate(-50%, -50%);
+    background: #fff; border-radius: 2.2mm; padding: .9mm; box-sizing: border-box; box-shadow: 0 0 0 .6mm #fff; }
+  .deckblatt .qr-logo img { width: 100%; height: 100%; display: block; }
+  .deckblatt .qr-text { margin-top: 2.6mm; font-size: 8.4pt; line-height: 1.35; color: #3c443f; }
+  .deckblatt .qr-text strong { display: block; font-size: 10pt; color: #1d4f42; margin-bottom: .6mm; }
+  .deckblatt .qr-text small { display: block; margin-top: 1.2mm; font-size: 6.6pt; color: var(--leise); white-space: nowrap; }
+
+  /* Inhaltsverzeichnis */
+  .inhalt h1 { break-before: auto; }
+  .toc { list-style: none; padding: 0; margin: 0; }
+  .toc > li { margin: 0; padding: 2.2mm 0; border-bottom: 1px solid #ecebe6; display: flex; gap: 4mm; font-weight: 600; }
+  .toc > li .nr { color: var(--akzent); width: 7mm; }
+  .toc > li span.sub { display: block; font-weight: 400; color: var(--leise); font-size: 9pt; margin-top: .6mm; }
+
+  /* Bilder */
+  figure { margin: 3mm 0 5mm; break-inside: avoid; }
+  figure img { display: block; max-width: 100%; border: 1px solid var(--linie); border-radius: 2mm; }
+  figure.schmal img { max-width: 72%; }
+  figure.mittel img { max-width: 86%; }
+  figure.handy img { max-width: 52mm; }
+  figure.ohne img { border: 0; }
+  figcaption { font-size: 8.6pt; color: var(--leise); margin-top: 1.5mm; }
+  .nebeneinander { display: flex; gap: 6mm; align-items: flex-start; }
+  .nebeneinander > * { flex: 1; }
+
+  /* Tabellen */
+  table { border-collapse: collapse; width: 100%; margin: 2mm 0 4mm; font-size: 9.4pt; break-inside: avoid; }
+  th, td { border-bottom: 1px solid var(--linie); padding: 1.6mm 2.2mm; text-align: left; vertical-align: top; }
+  th { background: #f4f3ee; font-weight: 650; font-size: 8.8pt; }
+  td.mitte, th.mitte { text-align: center; }
+  .ja { color: #1f7a3a; font-weight: 700; }
+  .nein { color: #b3261e; }
+
+  /* Hinweiskästen */
+  .kasten { border-radius: 2.5mm; padding: 3mm 4mm; margin: 3mm 0 4mm; break-inside: avoid; border-left: 1.4mm solid; }
+  .kasten.tipp { background: #e9f4ef; border-color: var(--akzent); }
+  .kasten.achtung { background: #fdf0e6; border-color: #d9822b; }
+  .kasten.info { background: #edf2fa; border-color: var(--blau); }
+  .kasten .k { font-weight: 700; display: block; margin-bottom: .8mm; }
+  .kasten p:last-child, .kasten ul:last-child { margin-bottom: 0; }
+
+  .rolle { display: inline-block; padding: .2mm 2.2mm; border-radius: 10mm; font-size: 8.4pt; font-weight: 650; border: 1px solid; white-space: nowrap; }
+  .r-admin { background: #fde8e6; color: #9b2c22; border-color: #f2bdb7; }
+  .r-kassier { background: #e3f1ec; color: #1f6f5c; border-color: #b5dccd; }
+  .r-pruefer { background: #e8eef8; color: #2f5687; border-color: #bfd0ea; }
+  .r-gast { background: #f1efe9; color: #5d5a52; border-color: #d6d2c6; }
+  .knopf { display: inline-block; border: 1px solid #b9b7ae; border-radius: 1.4mm; padding: 0 1.8mm; font-size: 8.8pt; background: #fff; white-space: nowrap; }
+  .knopf.primaer { background: var(--akzent); color: #fff; border-color: var(--akzent); }
+  .schritte { counter-reset: s; list-style: none; padding-left: 0; }
+  .schritte > li { counter-increment: s; position: relative; padding-left: 9mm; margin-bottom: 2.4mm; }
+  .schritte > li::before { content: counter(s); position: absolute; left: 0; top: -.2mm; width: 6mm; height: 6mm; border-radius: 50%;
+    background: var(--akzent); color: #fff; font-weight: 700; font-size: 8.6pt; display: grid; place-items: center; }
+  pre.csv { background: #f6f5f0; border: 1px solid var(--linie); border-radius: 2mm; padding: 2.5mm 3mm; font-size: 7.6pt; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; break-inside: avoid; }
+  .vermeiden { break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<!-- ======================= Deckblatt ======================= -->
+<section class="deckblatt">
+  <img class="banner" src="img/banner.jpg" alt="">
+  <div class="titel">
+    <div class="klein">Benutzerhandbuch</div>
+    <h1>Kassabuch</h1>
+    <div class="unter">Einnahmen und Ausgaben für Bank und Handkassa<br>führen, prüfen und drucken</div>
+  </div>
+  <div class="meta">
+    <strong>{{VEREIN}}</strong><br>
+    Programmversion {{VERSION}} · Stand Oktober 2026<br>
+    © 2026 erich.grassl@glw8.at
+  </div>
+  <div class="qr-karte">
+    <div class="qr-bild"><img src="img/qr_handbuch.svg" alt="QR-Code zum Benutzerhandbuch"><span class="qr-logo"><img src="img/logo.png" alt=""></span></div>
+    <div class="qr-text"><strong>Handbuch online</strong>Immer die aktuelle Fassung –<br>einfach mit dem Handy scannen
+      <small>{{BASIS_ANZEIGE}}<br>Kassabuch_Benutzerhandbuch.pdf</small></div>
+  </div>
+</section>
+
+<!-- ======================= Inhalt ======================= -->
+<section class="inhalt">
+  <h1>Inhalt</h1>
+  <ol class="toc">
+    <li><span class="nr">1</span><span>Überblick<span class="sub">Was das Kassabuch kann · Die zwei Konten · Rollen und Rechte</span></span></li>
+    <li><span class="nr">2</span><span>Anmelden und Grundbedienung<span class="sub">Anmeldung · Aufbau der Seiten · Passwort ändern · Am Handy</span></span></li>
+    <li><span class="nr">3</span><span>Das Journal<span class="sub">Kontostände · Filter und Suche · Symbole in der Tabelle</span></span></li>
+    <li><span class="nr">4</span><span>Buchungen erfassen<span class="sub">Neue Buchung · Beträge und Datum · Belege anhängen · Vermerke · Ändern und Löschen</span></span></li>
+    <li><span class="nr">5</span><span>Umbuchung und Bankspesen<span class="sub">Umbuchung zwischen Bank und Handkassa · Bankspesen (Kontoabschluss)</span></span></li>
+    <li><span class="nr">6</span><span>Bericht drucken<span class="sub">Zeitraum wählen · Aufbau des Ausdrucks · Prüf-ID, Bericht-ID und QR-Code · als PDF speichern</span></span></li>
+    <li><span class="nr">7</span><span>Kassaprüfung<span class="sub">Ablauf · Prüfung erfassen und Zeitraum sperren · Ausdruck nachprüfen</span></span></li>
+    <li><span class="nr">8</span><span>Export nach Excel (CSV)</span></li>
+    <li><span class="nr">9</span><span>Verwaltung (nur Administrator)<span class="sub">Einstellungen · Benutzer · Daten importieren · Mit Excel bearbeiten · Datensicherung · Wartungsmodus</span></span></li>
+    <li><span class="nr">10</span><span>Häufige Fragen und Meldungen</span></li>
+  </ol>
+</section>
+
+<!-- ======================= 1 Überblick ======================= -->
+<h1><span class="nr">1</span>Überblick</h1>
+<p class="lead">Das Kassabuch ersetzt die bisherige Excel-Tabelle. Alle Einnahmen und Ausgaben des Vereins werden im Browser erfasst – am PC, Tablet oder Handy. Das Programm rechnet die Kontostände laufend mit und druckt einen Bericht, der wie das gewohnte Papier-Kassabuch aussieht.</p>
+
+<h2>1.1 Was das Kassabuch kann</h2>
+<ul>
+  <li><strong>Buchungen erfassen</strong> für Bank und Handkassa – mit Datum, Belegnummer, Beschreibung und Betrag.</li>
+  <li><strong>Belege anhängen</strong>: ein Foto der Rechnung (direkt mit dem Handy) oder ein PDF.</li>
+  <li><strong>Umbuchungen</strong> zwischen Bank und Handkassa, z. B. Wechselgeld abheben oder Bareinnahmen einzahlen.</li>
+  <li><strong>Laufende Stände</strong>: Nach jeder Zeile steht der aktuelle Stand des Kontos.</li>
+  <li><strong>Bericht drucken</strong> im Querformat mit Übertrag, Zwischensummen, Gesamtsummen und Unterschriftszeilen.</li>
+  <li><strong>Kassaprüfung erfassen</strong>: Der geprüfte Zeitraum wird gesperrt und kann nicht mehr verändert werden.</li>
+  <li><strong>Nachvollziehbarkeit</strong>: Jede Änderung wird protokolliert. Jeder Ausdruck trägt eine Prüf-ID und eine eigene Bericht-ID.</li>
+  <li><strong>Export</strong> nach Excel und <strong>Import</strong> bisheriger Kassabücher.</li>
+</ul>
+
+<h2>1.2 Die zwei Konten</h2>
+<table>
+  <tr><th style="width:30%">Konto</th><th>Wofür</th></tr>
+  <tr><td><strong>Bank</strong> (gelb)</td><td>Das Vereinskonto: Überweisungen, Sponsoring, Habenzinsen, Kapitalertragsteuer, Kontoführung (Umsatzprovision).</td></tr>
+  <tr><td><strong>Handkassa</strong> (grau)</td><td>Bargeld: Einkäufe bar bezahlt, Umsätze bei Veranstaltungen (Adventmarkt, Dorffest …), Wechselgeld.</td></tr>
+</table>
+<p>Jede Buchung gehört zu genau <strong>einem</strong> der beiden Konten. Wandert Geld von einem Konto ins andere, ist das eine <strong>Umbuchung</strong> (Kapitel 5) – der Gesamtstand des Vereins ändert sich dabei nicht.</p>
+
+<div class="vermeiden">
+<h2>1.3 Rollen und Rechte</h2>
+<p>Jede Person meldet sich mit eigenem Benutzernamen an. Was sie darf, hängt von ihrer Rolle ab. Die Rolle steht auf jeder Seite oben rechts neben dem Namen.</p>
+<table>
+  <tr><th>Funktion</th><th class="mitte"><span class="rolle r-admin">Administrator</span></th><th class="mitte"><span class="rolle r-kassier">Kassaführung</span></th><th class="mitte"><span class="rolle r-pruefer">Kassaprüfer</span></th><th class="mitte"><span class="rolle r-gast">Gast</span></th></tr>
+  <tr><td>Journal ansehen, Bericht drucken, CSV-Export, Belege ansehen</td><td class="mitte ja">✓</td><td class="mitte ja">✓</td><td class="mitte ja">✓</td><td class="mitte ja">✓</td></tr>
+  <tr><td>Buchungen und Umbuchungen erfassen, ändern, löschen</td><td class="mitte ja">✓</td><td class="mitte ja">✓</td><td class="mitte nein">–</td><td class="mitte nein">–</td></tr>
+  <tr><td>Kassaprüfung erfassen (und Zeitraum sperren)</td><td class="mitte ja">✓</td><td class="mitte nein">–</td><td class="mitte ja">✓</td><td class="mitte nein">–</td></tr>
+  <tr><td>Ausgedruckten Bericht nachprüfen</td><td class="mitte ja">✓</td><td class="mitte ja">✓</td><td class="mitte ja">✓</td><td class="mitte ja">✓</td></tr>
+  <tr><td>Eigenes Passwort ändern</td><td class="mitte ja">✓</td><td class="mitte ja">✓</td><td class="mitte ja">✓</td><td class="mitte ja">✓</td></tr>
+  <tr><td>Einstellungen, Benutzer, Import, Protokoll, Datensicherung</td><td class="mitte ja">✓</td><td class="mitte nein">–</td><td class="mitte nein">–</td><td class="mitte nein">–</td></tr>
+</table>
+</div>
+<div class="kasten info"><span class="k">Warum darf die Kassaführung keine Prüfung erfassen?</span>
+<p>Wer bucht, soll sich nicht selbst prüfen. Die Kassaprüfung erfassen deshalb die Kassaprüfer (oder der Administrator).</p></div>
+<div class="kasten info"><span class="k">Gastzugang</span>
+<p>Der <strong>Gast</strong> kann das Kassabuch nur ansehen und Berichte drucken, z. B. für Vorstandsmitglieder oder für die Vorbereitung der Generalversammlung. Er kann nichts ändern – außer seinem <strong>eigenen Passwort</strong> (Kapitel 2.3). Wie bei allen anderen muss er das vom Administrator vergebene Anfangspasswort bei der ersten Anmeldung durch ein eigenes ersetzen. Wird ein Gastzugang von mehreren Personen gemeinsam genutzt, sollte das neue Passwort allen mitgeteilt werden. Gäste erscheinen nicht in der Kontaktliste im Journal.</p></div>
+
+<!-- ======================= 2 Anmelden ======================= -->
+<h1><span class="nr">2</span>Anmelden und Grundbedienung</h1>
+
+<h2>2.1 Anmelden</h2>
+<div class="nebeneinander">
+  <figure class="ohne"><img src="img/login.png" alt=""><figcaption>Abb. 1 – Anmeldeseite</figcaption></figure>
+  <div>
+    <p>Öffnen Sie die Adresse des Kassabuchs im Browser und geben Sie <strong>Benutzername</strong> und <strong>Passwort</strong> ein. Ihre Zugangsdaten erhalten Sie vom Administrator.</p>
+    <ul>
+      <li>Nach <strong>5 falschen Versuchen</strong> ist die Anmeldung für 15 Minuten gesperrt.</li>
+      <li>Nach <strong>60 Minuten ohne Tätigkeit</strong> werden Sie automatisch abgemeldet. Ungespeicherte Eingaben gehen dabei verloren.</li>
+      <li>Zum Beenden oben rechts auf <strong>Abmelden</strong> klicken – vor allem an fremden Geräten.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>2.2 Aufbau der Seiten</h2>
+<figure><img src="img/kopf.png" alt=""><figcaption>Abb. 2 – Kopfzeile als Administrator: Menü, Name, Rolle, Passwort, Abmelden</figcaption></figure>
+<p>Die <strong>Kopfzeile</strong> enthält das Menü. Sie sehen nur die Punkte, die Ihre Rolle verwenden darf – ein Kassaprüfer sieht zum Beispiel keine Punkte zum Buchen:</p>
+<figure><img src="img/kopf_pruefer.png" alt=""><figcaption>Abb. 3 – Kopfzeile als Kassaprüfer</figcaption></figure>
+<p>Ganz rechts im Menü zeigt <strong>Hilfe</strong> dieses Handbuch als Webseite direkt im Programm – ganz oben mit einem Link zur PDF-Fassung zum Ausdrucken und einem <strong>ausführlichen Inhaltsverzeichnis</strong> bis zu den Unterabschnitten; ein Klick springt zur Stelle. Am Ende jedes Kapitels führen Knöpfe zum vorherigen und nächsten Kapitel, beim Blättern erscheinen rechts unten die Knöpfe ☰ (Inhalt), A–Z (Stichwörter) und ▲ (nach oben). Am Schluss steht ein <strong>Stichwortverzeichnis A–Z</strong> mit Suchfeld: Begriff eintippen, z. B. „Passwort“, und auf die Abschnittsnummer klicken.</p>
+<p>Zusätzlich gibt es <strong>Kurzfassungen für jede Rolle</strong> – Administrator, Kassaführung, Kassaprüfer und Gast – mit einer Übersicht „Ihre Rolle auf einen Blick“ und nur den Kapiteln, die für diese Rolle wichtig sind. Oben auf der Hilfe-Seite steht der Link zur Kurzfassung für <em>Ihre</em> Rolle.</p>
+<p>Die <strong>Fußzeile</strong> jeder Seite zeigt, als wer Sie angemeldet sind, was Ihre Rolle darf, sowie Programmversion und Copyright:</p>
+<figure><img src="img/fuss.png" alt=""><figcaption>Abb. 4 – Fußzeile</figcaption></figure>
+
+<h2>2.3 Passwort ändern</h2>
+<p>Jeder Benutzer – egal in welcher Rolle – kann sein Passwort jederzeit selbst ändern: oben rechts auf <strong>🔑 Passwort ändern</strong> klicken, das bisherige Passwort und zweimal das neue eingeben. Das neue Passwort muss <strong>mindestens 8 Zeichen</strong> haben und sich vom bisherigen unterscheiden.</p>
+<p>Hat der Administrator Ihren Zugang neu angelegt oder das Passwort zurückgesetzt, öffnet sich nach der Anmeldung automatisch diese Seite: Erst nach dem Vergeben eines eigenen Passworts lässt sich das Kassabuch verwenden. Passwort vergessen? Der Administrator kann ein neues setzen (Kapitel 9.2).</p>
+
+<div class="nebeneinander vermeiden">
+  <div>
+    <h2>2.4 Am Handy</h2>
+    <p>Das Kassabuch passt sich kleinen Bildschirmen an. Das Menü lässt sich seitlich wischen. Beim Feld <strong>Beleg</strong> öffnet das Handy direkt die Kamera – so ist die Rechnung gleich beim Einkauf fotografiert und abgelegt.</p>
+    <div class="kasten tipp"><span class="k">Tipp</span><p>Legen Sie sich die Adresse des Kassabuchs als Symbol auf den Startbildschirm („Zum Startbildschirm hinzufügen“).</p></div>
+  </div>
+  <figure class="handy" style="flex:0 0 56mm"><img src="img/handy.png" alt=""><figcaption>Abb. 5 – Neue Buchung am Handy</figcaption></figure>
+</div>
+
+<!-- ======================= 3 Journal ======================= -->
+<h1><span class="nr">3</span>Das Journal</h1>
+<p>Das <strong>Journal</strong> ist die Startseite. Es zeigt alle Buchungen eines Zeitraums – aufgebaut wie das Papier-Kassabuch, mit je drei Spalten für Bank und Handkassa: <em>Eingang</em>, <em>Ausgang</em> und <em>Stand</em>.</p>
+<figure><img src="img/journal.png" alt=""><figcaption>Abb. 6 – Journal mit Kontoständen, Filter und Buchungen</figcaption></figure>
+
+<h2>3.1 Kontostände</h2>
+<figure class="mittel"><img src="img/staende.png" alt=""><figcaption>Abb. 7 – Aktuelle Stände und Kontakte</figcaption></figure>
+<p>Oben stehen die <strong>aktuellen Stände</strong> von Bank und Handkassa, die Summe beider und – falls vorhanden – bis zu welchem Tag das Kassabuch <strong>geprüft und gesperrt</strong> ist.</p>
+<p>Daneben steht die Kachel <strong>Kontakt</strong> mit der Kassaführung und den Kassaprüfern samt E-Mail-Adresse (Administratoren werden nicht angezeigt). Ein Klick auf einen Namen öffnet das E-Mail-Programm mit dieser Adresse, <strong>„E-Mail an alle“</strong> eine Nachricht an alle aufgelisteten Personen. Die Adressen pflegt der Administrator unter <strong>Benutzer</strong> (Kapitel 9.2).</p>
+
+<h2>3.2 Filter und Suche</h2>
+<figure><img src="img/filter.png" alt=""><figcaption>Abb. 8 – Filterleiste</figcaption></figure>
+<ul>
+  <li><strong>von / bis</strong>: Zeitraum. Beim Öffnen beginnt das Journal am ersten Tag nach der letzten Kassaprüfung. Ohne „bis“ werden alle späteren Buchungen gezeigt.</li>
+  <li><strong>Konto</strong>: nur Bank, nur Handkassa oder beide.</li>
+  <li><strong>Suche</strong>: findet Text in Beschreibung und Belegnummer, z. B. „Dorffest“ oder „Sponsoring“.</li>
+  <li><strong>Buchungs-ID</strong>: Nummer eintragen (z. B. 36) und Enter drücken bzw. <span class="knopf">Anzeigen</span> klicken. Gezeigt wird genau diese Buchung – bei einer Umbuchung beide Zeilen – zusammen mit allen <strong>Korrekturbuchungen</strong>, die in ihrer Beschreibung diese Buchungs-ID nennen (Kapitel 4.5). Die gesuchte Buchung ist grün hervorgehoben; darüber steht, wann sie gebucht wurde und wie viele Korrekturbuchungen sich darauf beziehen. Zeitraum, Konto und Suche gelten dabei nicht. Wurde die Buchung gelöscht, steht dort, wann und von wem. <strong>Filter aufheben</strong> führt zurück zur normalen Ansicht.</li>
+  <li><span class="knopf">Alles</span> zeigt das gesamte Kassabuch ab Beginn.</li>
+  <li><span class="knopf">Letzte [7] Buchungen</span> zeigt die zuletzt gebuchten Zeilen – unabhängig vom Zeitraum, also auch über eine Kassaprüfung hinweg. Die <strong>Anzahl</strong> steht im Feld in der Mitte und ist mit 7 vorbelegt; eine andere Zahl eintragen (z. B. 20) und auf „Letzte“ bzw. „Buchungen“ klicken oder Enter drücken. Der Knopf ist dann grün hervorgehoben. Die Zeile <strong>Übertrag</strong> zeigt die Stände unmittelbar vor diesen Buchungen. Ist ein Konto gewählt oder ein Suchtext eingegeben, sind es die letzten passenden Buchungen. Mit <span class="knopf">Anzeigen</span> oder <span class="knopf">Alles</span> geht es zurück zur normalen Ansicht.</li>
+  <li><span class="knopf">Drucken</span> öffnet den Bericht für den eingestellten Zeitraum (Kapitel 6), <span class="knopf">CSV / Excel</span> lädt ihn als Tabelle herunter (Kapitel 8).</li>
+</ul>
+<p>Fährt man mit der Maus über eine Buchungszeile, erscheint ein kleines Hinweisfeld mit der <strong>Buchungs-ID</strong> (der internen, nie doppelt vergebenen Nummer) sowie wann und von wem die Buchung erfasst und zuletzt geändert wurde – z. B. „Buchungs-ID 36 · erfasst 23.05.2025 18:12 von Thomas Kern“.</p>
+<figure><img src="img/journal_bid.png" alt=""><figcaption>Abb. 9 – Filter „Buchungs-ID“: die gesuchte Buchung und ihre Korrekturbuchung</figcaption></figure>
+<p>Über der Tabelle steht die <strong>Anzahl der angezeigten Buchungen</strong>, z. B. „55 Buchungen ab 09.09.2025“ – bei Konto- oder Suchfilter die Zahl der passenden Zeilen.</p>
+<h3>Navigation in langen Listen</h3>
+<p>Ab etwa 25 Buchungen über mehrere Monate (z. B. mit <span class="knopf">Alles</span>) erscheint über der Tabelle eine <strong>Monatsleiste</strong>: je Jahr die Monate, in denen gebucht wurde (z. B. <span class="knopf">2025</span> Jän · Feb · Mär …). Ein Klick springt zur ersten Buchung dieses Monats, die Zeile wird kurz gelb hervorgehoben. Beim Blättern ist der Monat, der gerade oben zu sehen ist, grün markiert. <span class="knopf">▲ Anfang</span> und <span class="knopf">▼ Ende</span> führen zum Tabellenanfang bzw. zur Zeile <strong>Summen &amp; Saldo</strong>.</p>
+<p>Sobald man in einer langen Liste nach unten blättert, erscheinen rechts unten zusätzlich runde Knöpfe: <span class="knopf">▲</span> zurück an den Anfang, <span class="knopf">📅</span> zur Monatsleiste und <span class="knopf">▼</span> zu den Summen am Ende – am Handy genauso wie am PC. Im Ausdruck erscheinen sie nicht.</p>
+<p>Die erste Zeile <strong>Übertrag</strong> zeigt die Stände am Beginn des Zeitraums, die letzte Zeile <strong>Summen &amp; Saldo</strong> die Summen der Ein- und Ausgänge und die Endstände. Bei aktivem Konto- oder Suchfilter werden nur die Summen der angezeigten Zeilen gebildet; die Stand-Spalte bleibt trotzdem richtig, weil sie immer über alle Buchungen gerechnet wird.</p>
+
+<h2>3.3 Symbole in der Tabelle</h2>
+<table>
+  <tr><th style="width:16mm" class="mitte">Symbol</th><th>Bedeutung</th></tr>
+  <tr><td class="mitte">✎</td><td>Buchung bearbeiten (nur Administrator und Kassaführung)</td></tr>
+  <tr><td class="mitte" style="color:#b3261e">✕</td><td>Buchung löschen – mit Sicherheitsabfrage</td></tr>
+  <tr><td class="mitte">🔒</td><td>Buchung liegt im geprüften Zeitraum und kann nicht mehr geändert werden</td></tr>
+  <tr><td class="mitte">📎</td><td>Ein Beleg (Foto/PDF) ist angehängt – anklicken zum Ansehen</td></tr>
+  <tr><td class="mitte" style="color:#3b5f86">⇄</td><td>Teil einer Umbuchung zwischen Bank und Handkassa (blaue Schrift)</td></tr>
+</table>
+
+<!-- ======================= 4 Buchungen ======================= -->
+<h1><span class="nr">4</span>Buchungen erfassen</h1>
+
+<h2>4.1 Neue Buchung</h2>
+<p>Im Menü auf <strong>+ Buchung</strong> klicken. Oben in der Kachel „Neue Buchung“ wählen Sie die Art: <span class="knopf">Buchung</span> für eine einzelne Einnahme oder Ausgabe, <span class="knopf">⇄ Umbuchung</span> für Geld zwischen Bank und Handkassa (Kapitel 5.1) und <span class="knopf">🏦 Bankspesen</span> für den Kontoabschluss der Bank (Kapitel 5.2).</p>
+<figure class="mittel"><img src="img/buchung.png" alt=""><figcaption>Abb. 10 – Formular „Neue Buchung“</figcaption></figure>
+<table>
+  <tr><th style="width:28%">Feld</th><th>Eingabe</th></tr>
+  <tr><td><strong>Datum</strong></td><td>Tag der Zahlung (laut Kontoauszug bzw. Kassenbon). Vorgeschlagen wird heute.</td></tr>
+  <tr><td><strong>Beleg-Nr.</strong></td><td>Wird automatisch fortlaufend vorgeschlagen. Nach jeder Kassaprüfung beginnt die Nummerierung wieder bei 1. Bei Sammelbuchungen darf das Feld bei den Folgezeilen leer bleiben – für Zinsen und Spesen gibt es dafür eigens <strong>🏦 Bankspesen</strong> (5.2).</td></tr>
+  <tr><td><strong>Konto</strong></td><td>Bank oder Handkassa.</td></tr>
+  <tr><td><strong>Beschreibung</strong></td><td>Wer, was, wofür – z. B. „Gärtnerei Grünblatt – Blumen Dorfplatz“. Beim Tippen werden Texte früherer Buchungen vorgeschlagen.</td></tr>
+  <tr><td><strong>Art</strong></td><td><strong style="color:#1f7a3a">Eingang</strong> (Geld kommt herein) oder <strong style="color:#b3261e">Ausgang</strong> (Geld geht hinaus).</td></tr>
+  <tr><td><strong>Betrag (€)</strong></td><td>Immer positiv eingeben – ob Ein- oder Ausgang, bestimmt das Feld „Art“.</td></tr>
+  <tr><td><strong>Beleg</strong></td><td>Optional: Foto oder PDF der Rechnung (siehe 4.3).</td></tr>
+</table>
+<p>Mit <span class="knopf primaer">Speichern</span> kehren Sie ins Journal zurück – immer mit der Ansicht <strong>„Letzte 7 Buchungen“</strong>; die gerade gespeicherte Zeile ist grün hervorgehoben. Das gilt ebenso nach einer Umbuchung und nach den Bankspesen. Wurde eine ältere Buchung geändert, die nicht unter den letzten sieben ist, erscheint ein Hinweis mit Link zu diesem Tag. <span class="knopf">Speichern &amp; nächste</span> öffnet sofort ein leeres Formular mit der nächsten Belegnummer – praktisch, wenn mehrere Belege hintereinander erfasst werden.</p>
+
+<div class="kasten achtung"><span class="k">Die Handkassa darf nicht ins Minus gehen</span>
+<p>Es kann nicht mehr Bargeld ausgegeben werden, als in der Kassa liegt. Würde eine Buchung den Stand der Handkassa irgendwann unter 0,00 € bringen, wird sie <strong>nicht gespeichert</strong>, und das Programm nennt den Tag und den Stand. Das gilt auch für rückdatierte Buchungen (sie verändern alle späteren Stände), für das Ändern und Löschen von Buchungen, für Umbuchungen Handkassa → Bank und für den CSV-Import. Unter dem Feld „Konto“ steht der aktuelle Stand der Handkassa. Fehlt Bargeld, zuerst eine <strong>Umbuchung Bank → Handkassa</strong> erfassen (5.1).</p></div>
+
+<h2>4.2 Beträge und Datum eingeben</h2>
+<p>Beträge werden in österreichischer Schreibweise erfasst; das Programm versteht alle üblichen Formen und formatiert sie beim Verlassen des Feldes:</p>
+<table>
+  <tr><th>Eingabe</th><th>wird zu</th><th>Eingabe</th><th>wird zu</th></tr>
+  <tr><td class="mono">35,57</td><td class="mono">35,57</td><td class="mono">1200</td><td class="mono">1.200,00</td></tr>
+  <tr><td class="mono">1.200,5</td><td class="mono">1.200,50</td><td class="mono">86.50</td><td class="mono">86,50</td></tr>
+</table>
+<p>Alle Beträge werden auf den Cent genau gespeichert – Rundungsfehler wie in Tabellenkalkulationen gibt es nicht.</p>
+
+<h2>4.3 Belege anhängen</h2>
+<div class="nebeneinander">
+<ul>
+  <li><span class="knopf">📷 Foto aufnehmen</span> öffnet am Handy direkt die Kamera – Rechnung oder Kassenbon fotografieren, „Foto verwenden“.</li>
+  <li><span class="knopf">📎 Datei / PDF wählen</span> nimmt ein vorhandenes Foto aus der Galerie, ein PDF (z. B. eine per E-Mail erhaltene Rechnung) oder eine Datei vom PC.</li>
+  <li>Darunter erscheint eine <strong>Vorschau</strong> mit Dateiname und Größe; „entfernen“ verwirft die Auswahl.</li>
+  <li>Fotos werden vor dem Hochladen <strong>automatisch verkleinert</strong> (meist auf unter 1 MB statt 3–8 MB) – gut lesbar und auch bei schwachem Netz schnell.</li>
+  <li>Erlaubt sind Fotos (JPG, PNG, WEBP, HEIC vom iPhone) und PDF, je bis 10 MB. Pro Buchung ein Beleg – mehrseitige Belege bitte als ein PDF.</li>
+  <li>Im Journal erscheint dann ein 📎 – ein Klick öffnet den Beleg. Beim Bearbeiten kann ein Beleg ersetzt oder entfernt werden.</li>
+</ul>
+<figure class="handy" style="flex:0 0 60mm"><img src="img/beleg_handy.png" alt=""><figcaption>Abb. 11 – Beleg am Handy</figcaption></figure>
+</div>
+<div class="kasten tipp"><span class="k">Tipp</span><p>Im Handy-Browser „Teilen → Zum Home-Bildschirm“ (iPhone) bzw. „Zum Startbildschirm hinzufügen“ (Android) wählen – dann liegt das Kassabuch wie eine App am Handy.</p></div>
+
+<h2>4.4 Vermerke ohne Geldfluss</h2>
+<p>Manche Vorgänge sollen im Kassabuch stehen, bewegen aber kein Geld – z. B. „Großmarkt Einkauf 77,72 vom Guthaben abgebucht“. Erfassen Sie solche Zeilen mit dem Betrag <strong>0,00</strong>. Sie erscheinen im Journal und im Bericht, die Stände bleiben gleich.</p>
+
+<h2>4.5 Buchungen ändern und löschen</h2>
+<p>Im Journal auf <strong>✎</strong> klicken, ändern, speichern – oder mit <strong style="color:#b3261e">✕</strong> löschen. Jede Änderung wird mit „vorher/nachher“ im Protokoll festgehalten.</p>
+<div class="kasten achtung"><span class="k">Geprüfte Zeiträume sind gesperrt</span>
+<p>Nach einer Kassaprüfung sind alle Buchungen bis zum geprüften Datum gesperrt (🔒). Sie können weder geändert noch gelöscht werden, und es können dort auch keine neuen Buchungen eingetragen werden. Ein Fehler in einem geprüften Zeitraum wird daher mit einer <strong>Korrekturbuchung</strong> im laufenden Zeitraum ausgeglichen – so bleibt die Prüfung gültig.</p></div>
+<h3>Korrekturbuchung erfassen</h3>
+<p>Die Korrekturbuchung ist eine ganz normale neue Buchung mit dem heutigen Datum, die den Fehler ausgleicht – z. B. war eine Ausgabe um 50,00 zu hoch gebucht, dann eine Einnahme über 50,00 auf dasselbe Konto. Damit später nachvollziehbar bleibt, worauf sie sich bezieht:</p>
+<div class="kasten tipp"><span class="k">Buchungs-ID der fehlerhaften Buchung angeben</span>
+<p>Tragen Sie in der <strong>Beschreibung</strong> der Korrekturbuchung immer die <strong>Buchungs-ID</strong> der Buchung ein, die korrigiert wird, z. B.<br>
+<strong>„Korrektur zu Buchungs-ID 36: Druckerei Muster – Plakate Dorffest richtig 183,94 statt 202,34“</strong>.</p>
+<p>Die Buchungs-ID ist die interne, nie doppelt vergebene Nummer einer Buchung (nicht die Belegnummer). Sie erscheint im Journal, wenn man mit der Maus über die Buchungszeile fährt (Kapitel 3.2), und steht in der Excel-Datei in der Spalte „ID“.</p>
+<p>Mit dem Filter <strong>Buchungs-ID</strong> im Journal sieht man später die ursprüngliche Buchung und alle Korrekturen dazu auf einen Blick (Kapitel 3.2).</p></div>
+
+
+<!-- ======================= 5 Umbuchung ======================= -->
+<h1><span class="nr">5</span>Umbuchung und Bankspesen</h1>
+<h2>5.1 Umbuchung zwischen Bank und Handkassa</h2>
+<p>Wird Geld vom Konto abgehoben und in die Handkassa gelegt (z. B. Wechselgeld vor einer Veranstaltung) oder werden Bareinnahmen auf das Konto eingezahlt, ist das eine <strong>Umbuchung</strong>. Im Menü auf <strong>+ Buchung</strong> und dann oben in der Kachel auf <span class="knopf">⇄ Umbuchung</span> klicken.</p>
+<figure class="mittel"><img src="img/umbuchung.png" alt=""><figcaption>Abb. 12 – Umbuchung erfassen</figcaption></figure>
+<ol class="schritte">
+  <li><strong>Datum</strong> und <strong>Beleg-Nr.</strong> prüfen.</li>
+  <li><strong>Richtung</strong> wählen: <em>Bank → Handkassa</em> (Abhebung) oder <em>Handkassa → Bank</em> (Einzahlung).</li>
+  <li><strong>Betrag</strong> und optional einen <strong>Zusatztext</strong> wie „Wechselgeld“ eingeben.</li>
+  <li><span class="knopf primaer">Speichern</span> – das Programm legt automatisch <strong>zwei verbundene Zeilen</strong> an, z. B. „Bank Ausgang Wechselgeld“ und „Handkassa Eingang Wechselgeld“.</li>
+</ol>
+<p>Beide Zeilen gehören zusammen: Bearbeiten über ✎ öffnet wieder dieses Formular, Löschen entfernt immer beide Zeilen. So kann eine Umbuchung nie „halb“ im Kassabuch stehen.</p>
+<div class="kasten tipp"><span class="k">Tipp</span><p>Bareinnahmen einer Veranstaltung zuerst als <strong>Eingang in der Handkassa</strong> buchen (z. B. „Umsatz Adventmarkt“), dann den eingezahlten Betrag als <strong>Umbuchung Handkassa → Bank</strong>. So ist im Bericht sichtbar, was eingenommen und was eingezahlt wurde.</p></div>
+
+<h2>5.2 Bankspesen (Kontoabschluss)</h2>
+<p>Beim Kontoabschluss bucht die Bank meist drei Posten auf einmal: <strong style="color:#1f7a3a">+ Habenzinsen</strong>, <strong style="color:#b3261e">− Kapitalertragssteuer</strong> und <strong style="color:#b3261e">− Umsatzprovision</strong>. Statt drei einzelner Buchungen: <strong>+ Buchung</strong> → <span class="knopf">🏦 Bankspesen</span>.</p>
+<figure class="mittel"><img src="img/bankspesen.png" alt=""><figcaption>Abb. 13 – Bankspesen in einem Schritt buchen</figcaption></figure>
+<ol class="schritte">
+  <li><strong>Datum</strong> laut Kontoauszug (Abschlussdatum, z. B. 31.12.) und <strong>Beleg-Nr.</strong> eintragen.</li>
+  <li>Die drei <strong>Beträge</strong> vom Kontoauszug eintragen – immer positiv, das Vorzeichen ist fest vorgegeben. Beim Eintippen der Habenzinsen wird die <strong>Kapitalertragssteuer (25 %)</strong> vorgeschlagen; bitte mit dem Kontoauszug vergleichen. Unten steht laufend die <strong>Veränderung des Bankstands</strong>.</li>
+  <li>Posten, die nicht vorkommen, einfach <strong>leer lassen</strong> – z. B. wenn es keine Zinsen gab.</li>
+  <li><span class="knopf primaer">Bankspesen buchen</span> – das Programm legt je Posten eine eigene Zeile im Konto <strong>Bank</strong> an: „Habenzinsen“, „Kapitalertragssteuer“, „Umsatzprovision“. Die Beleg-Nr. und ein angehängter Kontoauszug stehen bei der ersten Zeile.</li>
+</ol>
+<p>Die Zeilen sind gewöhnliche Buchungen und können im Journal jede für sich mit ✎ geändert oder mit ✕ gelöscht werden.</p>
+
+<!-- ======================= 6 Bericht ======================= -->
+<h1><span class="nr">6</span>Bericht drucken</h1>
+<p>Der Bericht ist die Druckfassung des Kassabuchs – im Aufbau wie das bisherige Excel-Kassabuch – und die Grundlage für die Kassaprüfung.</p>
+
+<h2>6.1 Bericht öffnen und Zeitraum wählen</h2>
+<ul>
+  <li>Menü <strong>Bericht / Druck</strong>: öffnet den Bericht vom Beginn des noch nicht geprüften Zeitraums bis zur letzten Buchung.</li>
+  <li>Im Journal <span class="knopf">Drucken</span>: übernimmt den dort eingestellten Zeitraum.</li>
+  <li>Unter <strong>Kassaprüfung</strong>: „Bericht für die Prüfung drucken“ bzw. „Bericht“ bei einer früheren Prüfung.</li>
+</ul>
+<p>Der Bericht öffnet sich in einem neuen Fenster. Oben lässt sich der Zeitraum ändern – entweder mit einem Klick auf eine <strong>Schnellauswahl</strong> oder über die Felder „von“ und „bis“ und <span class="knopf">Aktualisieren</span>:</p>
+<figure><img src="img/bericht_werkzeug.png" alt=""><figcaption>Abb. 14 – Werkzeugleiste des Berichts mit Schnellauswahl (wird nicht mitgedruckt)</figcaption></figure>
+<table>
+  <tr><th style="width:34%">Schnellauswahl</th><th>Zeitraum</th></tr>
+  <tr><td><strong>Laufendes Jahr</strong></td><td>vom 1. Jänner des aktuellen Jahres bis heute</td></tr>
+  <tr><td><strong>Letztes Quartal</strong></td><td>das zuletzt abgeschlossene Kalenderquartal, z. B. im Oktober: 1. Juli bis 30. September (Q3)</td></tr>
+  <tr><td><strong>Ab letzter Kassaprüfung</strong></td><td>vom Tag nach der letzten Kassaprüfung bis heute – der noch nicht geprüfte Zeitraum</td></tr>
+</table>
+<p>Der gerade gewählte Zeitraum ist grün hervorgehoben; fährt man mit der Maus über einen Knopf, werden die genauen Daten angezeigt.</p>
+<p>Rechts in der Werkzeugleiste befindet sich der Umschalter <span class="knopf">Nur letzte Seite</span>. Ist er aktiv (grün, mit Häkchen), wird nur die <strong>letzte Seite</strong> des Berichts angezeigt und gedruckt – mit Übertrag, Gesamtsummen, Prüfvermerk, QR-Code und Unterschriftszeilen. Praktisch, wenn die Buchungsseiten schon ausgedruckt sind und nur noch das Blatt für die Unterschriften der Kassaprüfer gebraucht wird. Übertrag und Seitenzahl („Seite 8 von 8“) entsprechen genau dem vollständigen Bericht. Ein weiterer Klick zeigt wieder alle Seiten; die Einstellung bleibt beim Wechsel der Schnellauswahl erhalten.</p>
+<div class="kasten info"><strong>Hinweis:</strong> Jeder Aufruf des Berichts erhält eine eigene Bericht-ID – auch das einzeln gedruckte Unterschriftsblatt. Unter „Kassaprüfung → Ausgedruckten Bericht überprüfen“ lässt sich jede dieser IDs nachprüfen.</div>
+
+<h2>6.2 Aufbau des Ausdrucks</h2>
+<figure><img src="img/druck_erste-1.png" alt=""><figcaption>Abb. 15 – Erste Seite eines Berichts (A4 quer)</figcaption></figure>
+<ul>
+  <li><strong>Kopfzeile</strong> auf jeder Seite: Vereinslogo und -name, „Kassabuch · Bank und Handkassa“ mit dem Berichtszeitraum, rechts – sobald der Zeitraum geprüft ist – „✔ geprüft am …“ und die Seitenzahl.</li>
+  <li><strong>Übertrag</strong> (gelbe Zeile oben): Stände am Beginn der Seite – auf Folgeseiten der Endstand der Vorseite.</li>
+  <li><strong>Buchungszeilen</strong>: Buchungen desselben Tages teilen sich das Datumsfeld.</li>
+  <li><strong>Zwischensummen &amp; Saldo</strong>: Ein- und Ausgänge dieser Seite sowie die Stände am Seitenende.</li>
+  <li><strong>Prüf-ID</strong>: senkrecht am rechten Rand jeder Seite.</li>
+  <li><strong>Fußzeile</strong>: Programmversion, <strong>Bericht-ID</strong> mit Erstellungszeit, Seitenzahl.</li>
+</ul>
+<figure><img src="img/druck_letzte-8.png" alt=""><figcaption>Abb. 16 – Letzte Seite mit Gesamtsummen, QR-Code und Unterschriftszeilen</figcaption></figure>
+<p>Die <strong>letzte Seite</strong> enthält zusätzlich die <strong>Gesamtsummen &amp; Saldo</strong> über den ganzen Zeitraum, den Vermerk der Kassaprüfung mit den Namen der Prüfer und Unterschriftszeilen sowie zwei <strong>QR-Codes</strong>: links der Link zur Vereins-Webseite, rechts <strong>„Bericht aufrufen &amp; prüfen“</strong> – er führt genau zu diesem Bericht im Kassabuch (Kapitel 7.3). Wurde für genau diesen Zeitraum bereits eine Kassaprüfung erfasst, steht deren Datum schon im Vermerk.</p>
+
+<h2>6.3 Prüf-ID und Bericht-ID</h2>
+<table>
+  <tr><th style="width:22%"></th><th>Prüf-ID</th><th>Bericht-ID</th></tr>
+  <tr><td><strong>Wo</strong></td><td>rechter Rand jeder Seite, über dem Prüfvermerk</td><td>Fußzeile jeder Seite</td></tr>
+  <tr><td><strong>Was</strong></td><td>Fingerabdruck aller Buchungen des Zeitraums</td><td>eindeutige Nummer dieses einen Ausdrucks</td></tr>
+  <tr><td><strong>Ändert sich</strong></td><td>nur, wenn sich eine Buchung oder ein Anfangsstand ändert</td><td>bei jedem Öffnen des Berichts</td></tr>
+  <tr><td><strong>Wozu</strong></td><td>zeigt, ob die Daten seit der Prüfung gleich geblieben sind</td><td>zeigt, wer den Ausdruck wann erstellt hat (Kapitel 7.3); steckt auch im QR-Code „Bericht aufrufen &amp; prüfen“</td></tr>
+</table>
+
+<h2>6.4 Drucken oder als PDF speichern</h2>
+<ol class="schritte">
+  <li>Auf <span class="knopf primaer">Drucken / als PDF speichern</span> klicken.</li>
+  <li>Im Druckdialog <strong>Querformat</strong> wählen und <strong>Hintergrundgrafiken</strong> einschalten (sonst fehlen die Farben).</li>
+  <li>Als Drucker einen echten Drucker oder <strong>„Als PDF speichern“</strong> wählen.</li>
+</ol>
+
+<!-- ======================= 7 Kassaprüfung ======================= -->
+<h1><span class="nr">7</span>Kassaprüfung</h1>
+
+<h2>7.1 Ablauf einer Prüfung</h2>
+<ol class="schritte">
+  <li><strong>Bericht drucken</strong>: Menü <strong>Kassaprüfung</strong> → „Bericht für die Prüfung drucken“.</li>
+  <li><strong>Vergleichen</strong>: Endstand <em>Bank</em> mit dem Kontoauszug, Endstand <em>Handkassa</em> mit dem gezählten Bargeld. Stichproben der Belege ansehen (📎 im Journal).</li>
+  <li><strong>Unterschreiben</strong>: Kassaprüfer und Kassaführung unterschreiben den Ausdruck.</li>
+  <li><strong>Prüfung erfassen</strong>: als Kassaprüfer (oder Administrator) im Programm eintragen – siehe 7.2.</li>
+</ol>
+<div class="kasten info"><span class="k">Korrekturbuchungen prüfen</span>
+<p>Fehler in einem bereits geprüften Zeitraum werden mit einer <strong>Korrekturbuchung</strong> im laufenden Zeitraum ausgeglichen (Kapitel 4.5). In deren Beschreibung muss die <strong>Buchungs-ID</strong> der korrigierten Buchung stehen, z. B. „Korrektur zu Buchungs-ID 36: …“. Fehlt dieser Bezug, bei der Kassaführung nachfragen. Die Buchungs-ID im Filter des Journals eintragen – dann stehen die ursprüngliche Buchung und alle Korrekturen dazu untereinander (Kapitel 3.2).</p></div>
+
+<h2>7.2 Prüfung erfassen und Zeitraum sperren</h2>
+<figure class="mittel"><img src="img/pruefung_form.png" alt=""><figcaption>Abb. 17 – Kassaprüfung erfassen</figcaption></figure>
+<ul>
+  <li><strong>Geprüft bis einschließlich</strong>: letzter Tag des geprüften Zeitraums. Der Beginn ist immer der Tag nach der vorigen Prüfung.</li>
+  <li><strong>Datum der Prüfung</strong>, <strong>Kassaprüfer 1 und 2</strong>, <strong>Kassaführung</strong>: werden aus den Einstellungen vorgeschlagen.</li>
+  <li><strong>Bemerkung</strong>: z. B. „Barbestand gezählt, Kontoauszüge verglichen“.</li>
+  <li><strong>Zeitraum danach sperren</strong> (empfohlen): Buchungen bis zum geprüften Datum sind dann unveränderbar (🔒).</li>
+</ul>
+<p>Unter dem Formular stehen die Stände laut Kassabuch zum Prüfdatum – bitte vor dem Speichern noch einmal mit Kontoauszug und Bargeld vergleichen.</p>
+<p>Alle bisherigen Prüfungen stehen in einer Liste. Die Spalte <strong>Status</strong> zeigt, ob die Buchungen seither unverändert sind:</p>
+<figure><img src="img/pruefung_liste.png" alt=""><figcaption>Abb. 18 – Bisherige Prüfungen</figcaption></figure>
+<div class="kasten info"><span class="k">„⚠ seither geändert“</span>
+<p>Diese Warnung erscheint, wenn nach der Prüfung Buchungen im geprüften Zeitraum oder die Anfangsstände geändert wurden. Das ist nur möglich, wenn der Administrator die Sperre aufgehoben hat – im Protokoll ist nachzulesen, wer was geändert hat.</p></div>
+
+<div class="kasten info"><span class="k">Kassaprüfung als Zeile im Kassabuch</span>
+<p>Beim Erfassen schreibt das Programm automatisch eine <strong>Vermerkzeile (0,00 €)</strong> ins Kassabuch, z. B. <em>„Kassaprüfung 01.10.24–08.09.25 i. O. · Paul Huber, Lisa Wagner · Bank 6.553,94 / Kassa 593,45 · Prüf-ID D18ED483“</em>. Sie steht am Prüfungstag – frühestens am Tag nach dem geprüften Zeitraum, damit die Prüf-ID unverändert bleibt – und erscheint im Journal und im Bericht grün hinterlegt und kursiv. Diese Zeile kann nicht bearbeitet oder gelöscht werden (✔ statt ✎/✕). Kosten der Prüfung, z. B. eine Konsumation, werden wie gewohnt als eigene Buchung erfasst.</p></div>
+
+<h2>7.3 Einen Ausdruck nachprüfen</h2>
+<p>Liegt ein ausgedruckter Bericht vor, kann seine Echtheit auf zwei Wegen geprüft werden.</p>
+<h3>Mit dem QR-Code (am einfachsten)</h3>
+<p>Auf der letzten Seite jedes Berichts steht rechts neben den Unterschriftszeilen der QR-Code <strong>„Bericht aufrufen &amp; prüfen“</strong> mit den ersten acht Zeichen der Bericht-ID darunter. Mit der Handy-Kamera scannen – das Kassabuch öffnet sich (gegebenenfalls zuerst anmelden, danach geht es von selbst weiter) und zeigt <strong>genau diesen Bericht</strong> mit demselben Zeitraum. Darüber steht, wann und von wem der Ausdruck erstellt wurde, und das Ergebnis der Nachprüfung:</p>
+<ul>
+  <li><strong>✓ grün – unverändert</strong>: Die Buchungen sind seit dem Ausdruck gleich geblieben; der angezeigte Bericht trägt dieselbe Bericht-ID und Prüf-ID wie der Ausdruck.</li>
+  <li><strong>⚠ orange – geändert</strong>: Im Zeitraum wurde seither etwas geändert. Angezeigt wird der aktuelle Stand mit neuer Bericht-ID; was sich geändert hat, steht im Protokoll.</li>
+</ul>
+<figure><img src="img/qr_herkunft.png" alt=""><figcaption>Abb. 19 – Bericht nach dem Scannen des QR-Codes</figcaption></figure>
+<p>Der QR-Code allein gibt keine Daten preis: Ohne Anmeldung im Kassabuch sieht man nur die Anmeldeseite. Jeder Aufruf über den QR-Code wird im Protokoll festgehalten.</p>
+<h3>Mit der Bericht-ID</h3>
+<p>Unter <strong>Kassaprüfung → Ausgedruckten Bericht überprüfen</strong> die <strong>Bericht-ID</strong> aus der Fußzeile eingeben. Mit „Bericht zu dieser ID öffnen“ lässt sich der Bericht von dort ebenfalls aufrufen.</p>
+<figure class="mittel"><img src="img/bericht_check.png" alt=""><figcaption>Abb. 20 – Ergebnis der Nachprüfung</figcaption></figure>
+<p>Angezeigt werden, wann und von wem der Bericht erstellt wurde, Zeitraum, Endstände, Prüf-ID und ob sich die Buchungen seither geändert haben. Ist die Nummer unbekannt, stammt der Ausdruck nicht aus diesem Kassabuch.</p>
+
+<!-- ======================= 8 Export ======================= -->
+<h1><span class="nr">8</span>Export nach Excel (CSV)</h1>
+<p>Im Journal auf <span class="knopf">CSV / Excel</span> klicken. Es wird eine Datei mit allen Buchungen des eingestellten Zeitraums heruntergeladen, die sich direkt mit Excel oder LibreOffice öffnen lässt.</p>
+<ul>
+  <li>Die erste Zeile enthält die Spaltenüberschriften, die zweite den <strong>Übertrag</strong>.</li>
+  <li>Je Zeile: Datum, Beleg-Nr., Beschreibung, Bank Eingang/Ausgang/Stand, Handkassa Eingang/Ausgang/Stand und der Name einer angehängten Beleg-Datei.</li>
+  <li>Die Datei hat genau das Format, das auch der Import versteht (Kapitel 9.3).</li>
+</ul>
+
+<!-- ======================= 9 Verwaltung ======================= -->
+<h1><span class="nr">9</span>Verwaltung <span style="font-size:12pt;vertical-align:middle" class="rolle r-admin">nur Administrator</span></h1>
+
+<h2>9.1 Einstellungen</h2>
+<figure class="mittel"><img src="img/einstellungen.png" alt=""><figcaption>Abb. 21 – Einstellungen</figcaption></figure>
+<table>
+  <tr><th style="width:30%">Einstellung</th><th>Bedeutung</th></tr>
+  <tr><td>Name des Vereins</td><td>erscheint in der Kopfzeile und auf dem Bericht</td></tr>
+  <tr><td>Kassaführung, Kassaprüfer 1 und 2</td><td>Vorschläge für die Kassaprüfung und Namen im Unterschriftsblock</td></tr>
+  <tr><td>Startdatum, Anfangsstände</td><td>Beginn des Kassabuchs und Stände an diesem Tag. Eine Änderung verschiebt alle Salden – bereits erfasste Prüfungen zeigen dann „seither geändert“.</td></tr>
+  <tr><td>Gesperrt bis</td><td>wird bei der Kassaprüfung gesetzt. Leeren hebt die Sperre auf (wird protokolliert). Nur in begründeten Ausnahmefällen verwenden!</td></tr>
+  <tr><td>Zeilen pro Druckseite</td><td>Anzahl der Buchungszeilen je Berichtsseite (Standard 22)</td></tr>
+  <tr><td>Link für den QR-Code</td><td>Ziel des linken QR-Codes auf der letzten Berichtsseite (z. B. Vereins-Webseite); leer = kein QR-Code. Der rechte QR-Code „Bericht aufrufen &amp; prüfen“ wird immer gedruckt.</td></tr>
+</table>
+
+<h2>9.2 Benutzer</h2>
+<figure><img src="img/benutzer.png" alt=""><figcaption>Abb. 22 – Benutzerverwaltung</figcaption></figure>
+<ul>
+  <li><strong>Neuen Benutzer anlegen</strong>: Name, Benutzername, Rolle, E-Mail-Adresse (freiwillig) und ein Anfangspasswort (mind. 8 Zeichen) vergeben und der Person mitteilen. Bei der ersten Anmeldung muss sie es durch ein eigenes ersetzen.</li>
+  <li><strong>E-Mail-Adresse</strong>: in der Spalte „E-Mail“ eintragen oder ändern und auf „speichern“ klicken (leer lassen = keine Adresse). Die Adressen von Kassaführung und Kassaprüfern erscheinen im Journal in der Kachel „Kontakt“ als Link.</li>
+  <li><strong>Rolle ändern</strong>: Auswahlfeld in der Liste – wird sofort gespeichert.</li>
+  <li><strong>Sperren</strong>: Ein gesperrter Benutzer kann sich nicht mehr anmelden; seine Einträge im Protokoll bleiben erhalten. Benutzer werden nicht gelöscht, sondern gesperrt.</li>
+  <li><strong>Passwort zurücksetzen</strong>: neues Passwort eintragen und „setzen“ klicken. Die Person muss es bei der nächsten Anmeldung durch ein eigenes ersetzen; bis dahin steht in der Liste „muss Passwort bei nächster Anmeldung ändern“.</li>
+  <li>Den eigenen Zugang kann man hier nicht sperren oder herabstufen – so bleibt immer ein Administrator übrig.</li>
+</ul>
+
+<h2>9.3 Daten importieren (CSV)</h2>
+<p>Mit dem Import wird ein bisheriges Kassabuch (z. B. aus Excel) übernommen: <strong>Einstellungen → Buchungen importieren (CSV)</strong>.</p>
+<figure class="mittel"><img src="img/import.png" alt=""><figcaption>Abb. 23 – Import-Seite mit Beschreibung des Formats</figcaption></figure>
+<h3>Aufbau der Datei</h3>
+<pre class="csv">Datum;Beleg Nr.;Beschreibung;Bank Eingang;Bank Ausgang;Bank Stand;Handkassa Eingang;Handkassa Ausgang;Handkassa Stand
+01.01.2026;;Übertrag;;;5.000,00;;;150,00
+10.01.2026;1;Mitgliedsbeiträge 2026;480,00;;5.480,00;;;
+15.01.2026;2;Vereinssitzung Gasthaus Zur Linde;;;;;42,50;107,50
+20.01.2026;3;Bank Ausgang Wechselgeld;;300,00;5.180,00;;;
+20.01.2026;;Handkassa Eingang Wechselgeld;;;;300,00;;407,50
+01.02.2026;4;"Druck &amp; Medien; Einladungen";;120,00;5.060,00;;;
+14.02.2026;;Großmarkt Einkauf 45,00 vom Guthaben abgebucht;;0,00;5.060,00;;;
+31.03.2026;5;Habenzinsen;0,25;;;;;</pre>
+<ul>
+  <li>Trennzeichen ist der <strong>Strichpunkt</strong>. In Excel: „Speichern unter → CSV (Trennzeichen-getrennt)“.</li>
+  <li>Eine <strong>Übertrag</strong>-Zeile am Anfang setzt Startdatum und Anfangsstände – nur bei leerem Kassabuch. Bei einem Kassabuch mit Daten muss der Übertrag zum aktuellen Stand passen.</li>
+  <li>Pro Zeile <strong>nur ein Konto</strong>. Umbuchungen also als zwei Zeilen.</li>
+  <li>Die Zeilen müssen <strong>nach Datum sortiert</strong> sein und nach der letzten vorhandenen Buchung liegen – Ausnahme: der Nachtrag älterer Buchungen (siehe unten).</li>
+  <li>Enthält die Beschreibung einen Strichpunkt, den Text in <strong>Anführungszeichen</strong> setzen.</li>
+  <li>Die <strong>Stand</strong>-Spalten sind freiwillig. Sind sie ausgefüllt, rechnet das Programm jede Zeile nach.</li>
+</ul>
+<h3>Ablauf</h3>
+<ol class="schritte">
+  <li>Datei auswählen und <span class="knopf primaer">Datei prüfen</span> klicken – es wird noch <strong>nichts gespeichert</strong>.</li>
+  <li>Bei Fehlern listet das Programm jede betroffene Zeile mit Nummer auf, z. B. <em>„Zeile 13: Stand Bank laut Datei 14.252,07 €, berechnet 14.288,07 €“</em>. Datei korrigieren und erneut prüfen.</li>
+  <li>Ist alles in Ordnung, erscheinen Zeitraum, Anfangs- und Endstand und eine Vorschau aller Zeilen. Mit <span class="knopf primaer">Jetzt … Buchungen importieren</span> werden sie übernommen.</li>
+</ol>
+
+<h3>Ältere Buchungen vor dem Beginn nachtragen</h3>
+<p>Buchungen aus der Zeit <strong>vor dem „Beginn des Kassabuchs“</strong> lassen sich ebenfalls per CSV nachtragen. Das Programm erkennt den Nachtrag an einer Übertrag-Zeile, deren Datum <strong>vor</strong> dem bisherigen Beginn liegt:</p>
+<pre class="csv">Datum;Beleg Nr.;Beschreibung;Bank Eingang;Bank Ausgang;Bank Stand;Handkassa Eingang;Handkassa Ausgang;Handkassa Stand
+01.09.2024;;Übertrag;;;3.870,00;;;210,00
+05.09.2024;1;Mitgliedsbeiträge 2024;500,00;;4.370,00;;;
+12.09.2024;2;Druckerei Muster – Flyer Herbst;;120,00;4.250,00;;;
+20.09.2024;3;Kaffee und Kuchen Vorstandssitzung;;;;;30,00;180,00
+01.10.2024;;Übertrag;;;4.250,00;;;180,00</pre>
+<ul>
+  <li><strong>Erste Zeile:</strong> Übertrag mit dem neuen, früheren Startdatum und den <strong>damaligen</strong> Ständen.</li>
+  <li><strong>Buchungen:</strong> alle vor dem bisherigen Beginn (hier vor dem 01.10.2024), nach Datum sortiert.</li>
+  <li><strong>Endstand:</strong> Er muss <strong>genau</strong> den bisherigen Anfangsständen entsprechen (hier Bank 4.250,00 € / Handkassa 180,00 €). Die letzte Übertrag-Zeile ist freiwillig und dient nur der Kontrolle. Stimmt ein Betrag nicht, nennt das Programm die Differenz und speichert nichts.</li>
+  <li>Beim Import werden <strong>Startdatum und Anfangsstände</strong> automatisch auf den Übertrag der Datei vorverlegt. Weil der Stand am bisherigen Beginn gleich bleibt, ändern sich weder spätere Stände noch Kassaprüfungen (Prüf-ID bleibt „✓ unverändert“). Darum ist der Nachtrag auch bei bestehender Sperre möglich.</li>
+  <li>Die neuen Anfangsstände rechnet man so aus: <em>bisheriger Anfangsstand − (Eingänge − Ausgänge der nachgetragenen Buchungen)</em>, je Konto.</li>
+</ul>
+
+<h2>9.4 Mit Excel bearbeiten</h2>
+<p>Größere Korrekturen lassen sich bequem am PC in Excel erledigen: <strong>Einstellungen → 📊 Mit Excel bearbeiten</strong>.</p>
+<figure class="mittel"><img src="img/excel_seite.png" alt=""><figcaption>Abb. 24 – Herunterladen und Einlesen</figcaption></figure>
+<ol class="schritte">
+  <li><span class="knopf primaer">Alle Buchungen als Excel-Datei (.xlsx)</span> herunterladen. Blatt „Kassabuch“ enthält in Zeile 2 den <strong>Übertrag</strong> (Beginn und Anfangsstände) und darunter alle Buchungen mit ihrer <strong>ID</strong> in Spalte A; die grauen Stand-Spalten rechnet Excel selbst. Blatt „Anleitung“ fasst die Regeln zusammen.</li>
+  <li>In Excel bearbeiten:
+    <ul>
+      <li><strong>Ändern:</strong> Datum, Beleg Nr., Beschreibung oder Betrag überschreiben – die ID nicht ändern.</li>
+      <li><strong>Löschen:</strong> ganze Zeile löschen. Ein angehängter Beleg wird mitgelöscht.</li>
+      <li><strong>Einfügen:</strong> neue Zeile mit <strong>leerer ID</strong>, irgendwo – das Kassabuch sortiert nach Datum. Je Zeile ein Konto und Eingang <em>oder</em> Ausgang; Vermerk ohne Geldfluss: 0 in „Ausgang“.</li>
+      <li><strong>Am Beginn:</strong> Buchungen vor dem bisherigen Beginn einfügen und in der Übertrag-Zeile Startdatum und Anfangsstände anpassen. <strong>Am Ende:</strong> neue Zeilen einfach unten anfügen.</li>
+    </ul></li>
+  <li>Als <strong>.xlsx</strong> speichern und unter <span class="knopf">Excel-Datei einlesen</span> hochladen. Es wird zuerst nur <strong>geprüft</strong>: Die Übersicht zeigt jede geänderte (bisher/neu), neue und gelöschte Zeile sowie einen geänderten Beginn.</li>
+  <li><span class="knopf primaer">Änderungen übernehmen</span> – vorher legt das Kassabuch automatisch eine Sicherung der Datenbank an (Ordner <code>data/sicherungen</code>, die letzten 10 bleiben). Der Vorgang steht mit allen Änderungen im Protokoll.</li>
+</ol>
+<figure><img src="img/excel_vorschau.png" alt=""><figcaption>Abb. 25 – Übersicht vor dem Übernehmen</figcaption></figure>
+<div class="kasten achtung"><span class="k">Diese Regeln prüft das Kassabuch vor dem Speichern</span>
+<ul>
+  <li><strong>Kassaprüfungen bleiben gültig:</strong> Zeilen im geprüften Zeitraum („geprüft – nicht ändern“) dürfen nicht geändert, gelöscht oder ergänzt werden, und der Stand am Beginn des geprüften Zeitraums muss gleich bleiben.</li>
+  <li><strong>Die Handkassa geht nie ins Minus.</strong></li>
+  <li><strong>Umbuchungen bleiben vollständig:</strong> beide Zeilen nur gemeinsam löschen; gleiches Datum und gleicher Betrag.</li>
+  <li><strong>Automatische Zeilen einer Kassaprüfung</strong> bleiben unverändert; jede ID darf nur einmal vorkommen (kopierte Zeilen brauchen eine leere ID).</li>
+</ul>
+<p>Wird eine Regel verletzt, wird <strong>nichts</strong> gespeichert und die Ursache genannt.</p></div>
+<div class="kasten tipp"><span class="k">Wenn der Webserver Datei-Uploads blockiert (403)</span>
+<p>In Excel im Blatt „Kassabuch“ alles markieren (Strg+A), kopieren (Strg+C) und auf der Seite unter <strong>„… oder aus Excel einfügen“</strong> in das Textfeld einfügen (Strg+V). Das wird als normales Formular gesendet und funktioniert genauso.</p></div>
+
+<h2>9.5 Datensicherung</h2>
+<p><strong>Einstellungen → Datensicherung herunterladen</strong> erstellt sofort eine ZIP-Datei mit dem gesamten Kassabuch (Datenbank) und allen Belegen und lädt sie herunter.</p>
+<h3>Automatische Sicherung alle 3 Monate</h3>
+<p>Zusätzlich legt das Kassabuch <strong>alle 3 Monate selbst eine Sicherung</strong> am Server an – in derselben Form (ZIP mit Datenbank und Belegen). Einen Zeitplan am Server braucht es dafür nicht: Die Sicherung entsteht beim ersten Seitenaufruf eines angemeldeten Benutzers nach dem Fälligkeitstag (das dauert einmalig ein bis zwei Sekunden). Es bleiben immer nur die <strong>letzten 7 Sicherungen</strong> erhalten – das reicht 21 Monate (gut eineinhalb Jahre) zurück; die jeweils älteste wird automatisch gelöscht.</p>
+<p>Im Abschnitt <strong>💾 Automatische Sicherung</strong> der Einstellungen (Knopf <span class="knopf">💾 Automatische Sicherungen</span> springt direkt dorthin) sieht der Administrator, wann zuletzt gesichert wurde und ab wann die nächste Sicherung fällig ist, dazu die Liste der vorhandenen Sicherungen mit Datum und Größe. <span class="knopf">⬇ Herunterladen</span> lädt die gewählte Sicherung auf den eigenen Rechner. <span class="knopf">Jetzt Sicherung anlegen</span> erstellt sofort eine zusätzliche Sicherung am Server – sie zählt zu den sieben, und die nächste automatische ist dann drei Monate später fällig.</p>
+<figure class="mittel"><img src="img/sicherung.png" alt=""><figcaption>Abb. 26 – Automatische Sicherungen in den Einstellungen</figcaption></figure>
+<p>Jede Sicherung und jeder Download wird im Protokoll festgehalten (Gruppe „Import &amp; Sicherung“). Schlägt eine automatische Sicherung fehl, etwa weil der Speicherplatz am Server voll ist, steht das ebenfalls im Protokoll; der nächste Versuch folgt einen Tag später. Die Systemprüfung (Kapitel 9.6) zeigt, ob der Ordner für die Sicherungen beschreibbar ist.</p>
+<div class="kasten tipp"><span class="k">Empfehlung</span>
+<ul>
+  <li>Nach jeder Kassaprüfung eine Sicherung herunterladen – die automatischen Sicherungen liegen auf demselben Server wie das Kassabuch und helfen daher nicht, wenn der Server selbst ausfällt.</li>
+  <li>Die Sicherung an einem zweiten Ort aufbewahren (z. B. USB-Stick oder Vereins-Cloud) – sie enthält alle Vereinsfinanzen, also vertraulich behandeln.</li>
+</ul></div>
+
+<h2>9.6 Wartungsmodus</h2>
+<p>Für Arbeiten am Kassabuch – z. B. ein Programm-Update, einen Import oder größere Korrekturen – kann der Administrator unter <strong>Einstellungen → 🔧 Wartungsmodus</strong> die Anmeldung für alle anderen sperren.</p>
+<figure class="mittel"><img src="img/wartung.png" alt=""><figcaption>Abb. 27 – Wartungsmodus in den Einstellungen</figcaption></figure>
+<ul>
+  <li><strong>Hinweis</strong> eintragen (optional), z. B. „Wartung bis heute ca. 18:00 Uhr“, und <span class="knopf">Wartung einschalten</span> klicken.</li>
+  <li>Ab sofort können sich <strong>nur Administratoren</strong> anmelden. Alle anderen sehen auf der Anmeldeseite „🔧 Wartung läuft“ mit Ihrem Hinweis. Wer gerade angemeldet ist, wird beim nächsten Klick abgemeldet.</li>
+  <li>Solange die Wartung läuft, steht beim Administrator oben auf jeder Seite ein gelber Hinweis mit dem Link <strong>Wartung beenden</strong>.</li>
+  <li>Mit <span class="knopf primaer">Wartung beenden</span> ist das Kassabuch wieder für alle erreichbar. <span class="knopf">Nur Hinweis ändern</span> ändert den Text, ohne die Wartung zu beenden.</li>
+</ul>
+
+<h3>Systemprüfung</h3>
+<p>Im selben Bereich startet <span class="knopf">Systemprüfung starten</span> eine Übersicht über den Webspace – hilfreich vor und nach einem Update, beim Umzug zu einem anderen Provider oder für Anfragen beim Support:</p>
+<ul>
+  <li><strong>Server &amp; Provider:</strong> PHP-Version, Webserver, Betriebssystem, Rechnername und Server-Name des Providers, Domain, HTTPS, Programm- und Datenordner, Zeitzone.</li>
+  <li><strong>PHP-Einstellungen:</strong> Upload-Grenzen, Speicher, Laufzeit, Sitzungsdauer, Fehleranzeige, gesperrte Funktionen.</li>
+  <li><strong>Datenbank &amp; Speicher:</strong> SQLite-Version (mind. 3.27 für die Datensicherung), Ausbaustufe, Vollständigkeit aller Tabellen und Spalten, Datenbank-Prüfung, ein echter <strong>Schreibtest</strong> (sofort wieder zurückgenommen), eine <strong>Probesicherung</strong>, ungenutzter Platz, Größe, Belege, freier Speicherplatz.</li>
+  <li><strong>Dateirechte:</strong> Rechte, Besitzer und Lese-/Schreibzugriff der wichtigen Ordner und Dateien (inkl. <code>.htaccess</code> und <code>.user.ini</code>), <strong>alle Programm- und Belegdateien</strong> zusammengefasst (auffällige einzeln genannt), Abgleich der Besitzer mit dem PHP-Benutzer, Upload-Temp-Ordner (ohne ihn scheitert jedes Beleg-Hochladen) und Sitzungsordner (ohne ihn funktioniert die Anmeldung nicht).</li>
+  <li><strong>PHP-Module:</strong> benötigte und empfohlene Erweiterungen sowie die Liste aller geladenen Module.</li>
+</ul>
+<p>Jede Zeile ist bewertet: <span class="ja">✓ in Ordnung</span>, ⚠ Hinweis (z. B. fehlendes HTTPS, zu kleine Upload-Grenze) oder <span class="nein">✗ Fehler</span> (muss behoben werden, z. B. Datenordner nicht beschreibbar). Ganz unten prüft der <span class="knopf">Formular-Test</span>, welche Arten von Formularen die Firewall des Providers durchlässt (normales Formular, Upload-Formular ohne und mit Datei) – ein „✗ BLOCKIERT – 403“ zeigt, dass der Provider die Anfrage abweist, bevor das Kassabuch sie erhält. <span class="knopf">Gründlich prüfen</span> untersucht die Datenbank vollständig (dauert etwas länger). Mit <span class="knopf">Als Textdatei herunterladen</span> lässt sich das Ergebnis z. B. an den Provider schicken. Die wichtigsten Werte werden bei jeder Systemprüfung sowie beim Ein- und Ausschalten der Wartung automatisch mitgeschrieben.</p>
+
+<!-- ======================= 10 FAQ ======================= -->
+<h1><span class="nr">10</span>Häufige Fragen und Meldungen</h1>
+
+<h3>„Bis … ist das Kassabuch geprüft und gesperrt.“</h3>
+<p>Das gewählte Datum liegt in einem bereits geprüften Zeitraum. Ein späteres Datum wählen oder – bei einem Fehler – eine Korrekturbuchung im laufenden Zeitraum erfassen und darin die Buchungs-ID der fehlerhaften Buchung angeben (siehe 4.5).</p>
+
+<h3>„Die Handkassa darf nicht ins Minus gehen: Am … wäre der Stand …“</h3>
+<p>Mit dieser Buchung (oder Änderung, Löschung, Umbuchung) wäre an dem genannten Tag weniger als 0,00 € in der Handkassa. Betrag und Konto prüfen – oft wurde die Zahlung in Wahrheit vom Bankkonto geleistet. Wurde wirklich bar bezahlt, fehlt eine vorherige Abhebung: zuerst eine Umbuchung Bank → Handkassa mit passendem Datum erfassen.</p>
+
+<h3>„Anmeldung derzeit nicht möglich – das Kassabuch wird gewartet.“</h3>
+<p>Der Administrator hat den Wartungsmodus eingeschaltet (9.6). Bitte später erneut versuchen; der Hinweis auf der Anmeldeseite nennt meist, bis wann.</p>
+
+<h3>Fehlerseite „403 Forbidden“ beim Buchen oder Hochladen eines Belegs</h3>
+<p>Diese Seite kommt nicht vom Kassabuch, sondern vom Webserver bzw. der Firewall (ModSecurity) des Providers – oft nach einem Update beim Provider. Sie blockiert Formulare mit Datei-Upload. Buchungen <strong>ohne</strong> Beleg werden als normales Formular gesendet und funktionieren trotzdem. Zur Klärung als Administrator <strong>Einstellungen → Systemprüfung → Formular-Test</strong> starten und das Ergebnis samt Uhrzeit an den Provider schicken, mit der Bitte um eine Ausnahme der Firewall für das Kassabuch.</p>
+
+<h3>„Dafür fehlt Ihnen die Berechtigung.“</h3>
+<p>Die Funktion ist für Ihre Rolle nicht freigegeben (siehe Tabelle in 1.3). Wenden Sie sich an den Administrator.</p>
+
+<h3>„Sie wurden wegen Inaktivität abgemeldet.“</h3>
+<p>Nach 60 Minuten ohne Tätigkeit endet die Sitzung aus Sicherheitsgründen. Neu anmelden; nicht gespeicherte Eingaben bitte erneut erfassen.</p>
+
+<h3>„Ungültiges Formular-Token. Bitte die Seite neu laden.“</h3>
+<p>Das Formular war zu lange offen oder wurde in einem zweiten Fenster abgeschickt. Seite neu laden und die Eingabe wiederholen.</p>
+
+<h3>„Benutzername oder Passwort ist falsch.“ / „Zu viele Fehlversuche.“</h3>
+<p>Groß-/Kleinschreibung beim Passwort beachten. Nach 5 Fehlversuchen 15 Minuten warten oder den Administrator um ein neues Passwort bitten.</p>
+
+<h3>Ich habe eine Buchung auf das falsche Konto gebucht.</h3>
+<p>Mit ✎ öffnen, Konto ändern, speichern – solange der Zeitraum nicht geprüft ist. Bei einer Umbuchung die Richtung im Umbuchungsformular ändern. Ist der Zeitraum schon geprüft, gleichen zwei Korrekturbuchungen den Fehler aus (Ausgang auf dem falschen, Eingang auf dem richtigen Konto) – jeweils mit der Buchungs-ID der ursprünglichen Buchung in der Beschreibung (siehe 4.5).</p>
+
+<h3>Der Ausdruck ist ohne Farben oder im Hochformat.</h3>
+<p>Im Druckdialog „Querformat“ und „Hintergrundgrafiken“ einschalten (siehe 6.4).</p>
+
+<h3>Warum hat derselbe Bericht jedes Mal eine andere Bericht-ID?</h3>
+<p>Die Bericht-ID kennzeichnet jeden einzelnen Ausdruck. Ob die Daten gleich geblieben sind, zeigt die <strong>Prüf-ID</strong> – sie ist bei unveränderten Buchungen immer gleich.</p>
+
+<h3>Das Journal zeigt nicht alle Buchungen.</h3>
+<p>Das Journal beginnt nach der letzten Kassaprüfung. Mit <span class="knopf">Alles</span> oder einem früheren „von“-Datum werden ältere Buchungen angezeigt. Außerdem prüfen, ob ein Konto- oder Suchfilter gesetzt ist.</p>
+
+</body>
+</html>
