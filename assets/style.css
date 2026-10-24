@@ -1,0 +1,443 @@
+/*
+ * =====================================================================
+ *  Kassabuch – Gestaltung der Programmseiten (assets/style.css)
+ * =====================================================================
+ *
+ *  Gilt für alle Seiten außer dem Bericht (der hat assets/bericht.css).
+ *
+ *  Aufbau:
+ *    - Farben und Grundwerte als CSS-Variablen (:root) – hier zentral änderbar
+ *    - Seitenhintergrund mit Vereins-Wasserzeichen
+ *    - Kopfzeile, Menü, Karten, Formulare, Knöpfe, Meldungen
+ *    - Kontostände, Filterleiste, Buchungstabelle, Listen
+ *    - Rollen-Kennzeichen, Fußzeile, Import, Hilfe
+ *    - Anpassungen für schmale Bildschirme (Handy) in @media-Blöcken
+ *
+ *  Flächen (--flaeche) sind leicht durchscheinend, damit das Vereinslogo
+ *  im Hintergrund dezent durchschimmert.
+ */
+
+/* ---- Farben und Grundwerte ----
+   --akzent: Vereinsgrün für Knöpfe/Links · --bank/--kassa: Spaltenfarben wie im
+   Papier-Kassabuch (gelb/grau) · --stand: türkis · --saldo: orange Saldo-Felder */
+:root {
+  --grund: #f5f4ef;
+  --flaeche: rgba(255, 255, 255, .74);
+  --text: #1f2421;
+  --leise: #6b716c;
+  --linie: #d9d7cf;
+  --akzent: #1f6f5c;
+  --akzent-hell: #e3f1ec;
+  --gelb: #fff7b8;
+  --gelb-kraeftig: #ffe94d;
+  --bank: #fffbd1;
+  --kassa: #ecebe6;
+  --stand: #d4f7ea;
+  --saldo: #ffd27a;
+  --rot: #b3261e;
+  --rot-hell: #fbe9e7;
+  --gruen: #1f7a3a;
+  --radius: 10px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--text);
+}
+/* Breiten inklusive Rand und Innenabstand rechnen (einfacheres Layout) */
+* { box-sizing: border-box; }
+/* Seitenhintergrund: helles Beige mit großem, blassem Vereinslogo (bleibt beim Scrollen stehen) */
+body {
+  margin: 0; line-height: 1.45; min-height: 100vh;
+  background: var(--grund) url("img/hintergrund.png") no-repeat fixed center 55% / min(78vmin, 720px);
+}
+a { color: var(--akzent); }
+h1 { font-size: 1.35rem; margin: 0 0 1rem; }
+h2 { font-size: 1.1rem; margin: 0 0 .8rem; }
+code { font-size: .82em; word-break: break-all; }
+
+/* ---- Kopfzeile: bleibt beim Scrollen oben stehen (sticky), leicht durchscheinend ---- */
+.kopf {
+  display: flex; align-items: center; gap: 1.2rem; flex-wrap: wrap;
+  background: rgba(255,255,255,.94); backdrop-filter: blur(6px); border-bottom: 1px solid var(--linie);
+  padding: .55rem 1.2rem; position: sticky; top: 0; z-index: 5;
+}
+.marke { display: flex; align-items: center; gap: .6rem; text-decoration: none; color: var(--text); }
+.marke strong { display: block; font-size: 1rem; }
+.marke small { display: block; color: var(--leise); font-size: .75rem; max-width: 22ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.marke-icon {
+  width: 38px; height: 38px; flex: none;
+  background: url("img/logo.png") center / contain no-repeat;
+}
+.marke.gross { justify-content: center; margin-bottom: 1rem; }
+.marke.gross .marke-icon { width: 54px; height: 54px; }
+.haupt { display: flex; gap: .1rem; flex-wrap: wrap; flex: 1; }
+.haupt a { padding: .4rem .55rem; border-radius: 7px; text-decoration: none; color: var(--text); font-size: .92rem; }
+.haupt a:hover { background: var(--grund); }
+.haupt a.aktiv { background: var(--akzent-hell); color: var(--akzent); font-weight: 600; }
+.wer { display: flex; gap: .8rem; align-items: center; font-size: .85rem; color: var(--leise); }
+.wer form { margin: 0; }
+
+main { max-width: 1320px; margin: 1.2rem auto 1.5rem; padding: 0 1rem; }
+main.schmal { max-width: 640px; margin-top: 4vh; }
+
+/* ---- Karten (weiße Kästen) & Formulare ----
+   .zeile2/.zeile3 = Felder nebeneinander (am Handy untereinander, siehe @media unten) */
+.karte { background: var(--flaeche); border: 1px solid var(--linie); border-radius: var(--radius); padding: 1.4rem; max-width: 760px; margin-bottom: 1.2rem; }
+.karte.breit { max-width: none; }
+.anmeldung { max-width: 380px; margin: 0 auto; }
+.formular { display: grid; gap: .9rem; }
+.formular label { display: grid; gap: .3rem; font-size: .88rem; font-weight: 500; }
+.formular small { color: var(--leise); font-weight: 400; }
+fieldset { border: 1px solid var(--linie); border-radius: 8px; padding: .8rem 1rem 1rem; margin: 0; display: grid; gap: .8rem; }
+legend { font-size: .82rem; color: var(--leise); padding: 0 .3rem; }
+input, select, button, .knopf { font: inherit; font-size: .95rem; }
+input:not([type=checkbox]):not([type=radio]), select {
+  padding: .5rem .6rem; border: 1px solid #c4c2b9; border-radius: 7px; background: #fff; width: 100%; min-width: 0;
+}
+input:focus, select:focus { outline: 2px solid var(--akzent); outline-offset: 0; border-color: var(--akzent); }
+input.betrag { text-align: right; font-variant-numeric: tabular-nums; }
+input.gross { font-size: 1.2rem; font-weight: 600; }
+input.kurz { width: 11rem !important; padding: .3rem .5rem !important; }
+.zeile2 { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+.zeile3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .9rem; }
+fieldset.art { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+.formular label.radio { display: flex; align-items: center; gap: .45rem; font-weight: 500; cursor: pointer; }
+label.radio.ein:has(input:checked) { color: var(--gruen); }
+label.radio.aus:has(input:checked) { color: var(--rot); }
+.knoepfe { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+button, .knopf {
+  padding: .5rem 1rem; border-radius: 7px; border: 1px solid #c4c2b9; background: #fff; cursor: pointer;
+  text-decoration: none; color: var(--text); display: inline-block; line-height: 1.3;
+}
+button:hover, .knopf:hover { border-color: var(--akzent); }
+button.primaer { background: var(--akzent); border-color: var(--akzent); color: #fff; font-weight: 600; }
+button.primaer:hover { background: #185a4a; }
+.knopf.leise { background: transparent; }
+/* gerade gewählter Schnellknopf (z. B. „Letzte 7 Buchungen“) */
+.knopf.aktiv { background: #e3f1ec; border-color: var(--akzent); color: var(--akzent); font-weight: 600; }
+button.link { background: none; border: 0; padding: 0; color: var(--akzent); text-decoration: underline; cursor: pointer; font-size: inherit; }
+button.link.gefahr { color: var(--rot); text-decoration: none; }
+form.inline { display: inline; margin: 0; }
+.hinweis { color: var(--leise); font-size: .86rem; margin: 0; }
+
+/* Meldungen: .ok grün (gespeichert), .info blau (Hinweis), .fehler rot */
+.meldung { padding: .7rem 1rem; border-radius: 8px; margin-bottom: 1rem; border: 1px solid; }
+.meldung.ok { background: #e7f5ea; border-color: #b5dcbf; color: #1c5b2c; }
+.meldung.info { background: #eef3fa; border-color: #c4d4ea; }
+.meldung.fehler { background: var(--rot-hell); border-color: #efb9b3; color: var(--rot); }
+
+/* ---- Kacheln mit den aktuellen Kontoständen (oben im Journal) ---- */
+.staende { display: flex; gap: .8rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.stand { background: var(--flaeche); border: 1px solid var(--linie); border-radius: var(--radius); padding: .7rem 1.1rem; min-width: 170px; }
+.stand span { display: block; font-size: .78rem; color: var(--leise); text-transform: uppercase; letter-spacing: .04em; }
+.stand strong { font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+.stand.bank { border-top: 4px solid var(--gelb-kraeftig); }
+.stand.kassa { border-top: 4px solid #a9a79e; }
+.stand.gesamt { border-top: 4px solid var(--akzent); }
+.stand.info strong { font-size: 1.05rem; }
+input.mittel { width: 15rem; max-width: 100%; }
+/* Belegfeld: zwei Knöpfe (Kamera / Datei) und Vorschau */
+.beleg-feld { display: grid; gap: .45rem; }
+.beleg-titel { font-size: .88rem; font-weight: 500; }
+.beleg-knoepfe { display: flex; flex-wrap: wrap; gap: .5rem; }
+.beleg-knopf { position: relative; overflow: hidden; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; padding: .55rem .9rem; }
+/* Das eigentliche Datei-Feld liegt unsichtbar über dem Knopf (bleibt so ohne JavaScript bedienbar) */
+.beleg-knopf input { position: absolute; inset: 0; opacity: 0; cursor: pointer; font-size: 0; }
+.beleg-vorschau { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; padding: .5rem; border: 1px dashed var(--linie); border-radius: var(--radius); background: #fbfaf6; }
+.beleg-vorschau[hidden], .beleg-vorschau img[hidden] { display: none; }
+.beleg-vorschau img { max-height: 140px; max-width: 45%; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+.beleg-info { font-size: .85rem; color: var(--leise); flex: 1; min-width: 10rem; }
+@media (max-width: 640px) { .beleg-knopf { flex: 1 1 100%; justify-content: center; padding: .8rem; font-size: 1rem; } }
+/* Journal: Knopf „Letzte [n] Buchungen“ – Zahlenfeld zwischen zwei Knopfhälften */
+.filter label.bid input { width: 6.5rem; }
+.filter label.bid.aktiv input { border-color: var(--akzent); color: var(--akzent); background: #f2faf6; font-weight: 600; }
+.hinweis-box.bid-info.fehlt { background: #fdf0e6; border-color: #e8b27a; }
+.letzte-gruppe { display: inline-flex; align-items: stretch; }
+.letzte-gruppe .knopf:first-child { border-radius: 8px 0 0 8px; border-right: 0; padding-right: .4rem; }
+.letzte-gruppe .knopf:last-child { border-radius: 0 8px 8px 0; border-left: 0; padding-left: .4rem; }
+.filter .letzte-gruppe input { width: 3.8rem !important; min-width: 0; margin: 0; padding: .4rem .2rem; text-align: center; border-radius: 0; font-weight: 600; }
+.letzte-gruppe.aktiv input { border-color: var(--akzent); color: var(--akzent); background: #f2faf6; }
+/* Journal: gerade gespeicherte Zeilen kurz hervorheben */
+.buch tbody tr.neu td { background: #e3f1ec; animation: neu-blinken 2.5s ease-out; }
+.buch tbody tr.neu td:first-child { box-shadow: inset 4px 0 0 var(--akzent); }
+@keyframes neu-blinken { from { background: #b9e2d2; } to { background: #e3f1ec; } }
+.hinweis-box { background: #fff6d6; border: 1px solid #ecd98a; border-radius: var(--radius); padding: .6rem .9rem; margin: 0 0 .8rem; font-size: .92rem; }
+/* Auswahlleiste in der Kachel „Neue Buchung“: Buchung | Umbuchung | Bankspesen */
+.buchungsart { display: flex; flex-wrap: wrap; gap: .4rem; margin: -.2rem 0 1rem; padding: .25rem; background: #f1efe9; border-radius: 10px; width: fit-content; max-width: 100%; }
+.buchungsart a { padding: .4rem .9rem; border-radius: 8px; text-decoration: none; color: inherit; font-size: .92rem; }
+.buchungsart a:hover { background: #fff; }
+.buchungsart a.aktiv { background: #fff; color: var(--akzent); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+/* Bankspesen: drei Beträge untereinander mit Vorzeichen, darunter die Veränderung */
+.spesen { display: grid; gap: .55rem; padding: .8rem 1rem; border: 1px solid var(--linie); border-radius: var(--radius); background: #fffdf3; }
+.spesen label { grid-template-columns: 1fr 10rem; align-items: center; }
+.spesen label.ein span { color: #1f7a3a; }
+.spesen label.aus span { color: #b3261e; }
+.spesen input { text-align: right; }
+.spesen-summe { text-align: right; border-top: 1px solid var(--linie); padding-top: .45rem; font-size: .9rem; }
+@media (max-width: 640px) { .spesen label { grid-template-columns: 1fr 7.5rem; } }
+/* Wartungsmodus: Hinweis (Anmeldeseite, Kopf beim Administrator) und Karte in den Einstellungen */
+.meldung.wartung { background: #fdf0c4; border: 1px solid #e3c45a; color: #5a4a10; }
+.wartung-karte.an { border: 2px solid #e3c45a; background: #fffaea; }
+.wartung-status { margin: 0 0 .8rem; }
+.wartung-status.an { color: #7a5d00; }
+.gefahr-knopf { background: #fdf0c4; border-color: #e3c45a; }
+.gefahr-knopf:hover { background: #fae3a0; }
+/* Automatische Sicherung (Einstellungen) */
+.sicherung-status { margin: 0 0 .4rem; }
+table.sicherungen td, table.sicherungen th { padding: .35rem .6rem; white-space: nowrap; }
+table.sicherungen .re { text-align: right; white-space: nowrap; }
+table.sicherungen .neueste { font-size: .75rem; background: var(--akzent-hell); color: var(--akzent); border-radius: 1em; padding: .05rem .45rem; margin-left: .3rem; }
+#sicherung { scroll-margin-top: 150px; }
+#sicherung .klein { font-size: .85rem; }
+table.sicherungen .knopf { padding: .2rem .6rem; font-size: .85rem; }
+#sicherung .knoepfe { align-items: center; margin-top: .8rem; }
+/* Journal-Navigation bei langen Listen: Monats-Sprungleiste und schwebende Knöpfe */
+.monate { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .3rem; margin: 0 0 .7rem; font-size: .85rem; }
+.monate a { padding: .15rem .5rem; border: 1px solid var(--linie); border-radius: 1em; text-decoration: none; color: inherit; background: var(--flaeche); }
+.monate a:hover { border-color: var(--akzent); }
+.monate a.aktiv { background: var(--akzent); border-color: var(--akzent); color: #fff; }
+.monate .jahr { font-weight: 700; color: var(--leise); margin: 0 .1rem 0 .5rem; }
+.monate .knopf-klein { font-weight: 600; }
+#journal-anfang, #monate, .buch tr[id], #summen { scroll-margin-top: 150px; }
+.journal-navi a.klein, .hilfe-navi a.klein { font-size: .95rem; background: #fff; color: var(--akzent); border: 1px solid var(--akzent); }
+.journal-navi, .hilfe-navi { position: fixed; right: 1rem; bottom: 1.2rem; display: flex; flex-direction: column; gap: .4rem; z-index: 6; }
+.journal-navi[hidden], .hilfe-navi[hidden] { display: none; }
+.journal-navi a, .hilfe-navi a { width: 2.7rem; height: 2.7rem; display: grid; place-items: center; border-radius: 50%; background: var(--akzent); color: #fff;
+  text-decoration: none; font-size: 1.05rem; box-shadow: 0 2px 8px rgba(0,0,0,.25); opacity: .9; }
+.journal-navi a:hover, .hilfe-navi a:hover { opacity: 1; }
+.buch tr:target td { background: #fff3b0; transition: background 1.5s; }
+@media print { .monate, .journal-navi, .hilfe-navi { display: none !important; } }
+/* Excel-Rundlauf */
+textarea.einfuegen { width: 100%; font-family: ui-monospace, Consolas, monospace; font-size: .8rem; }
+.alt-wert { color: #8a3b33; text-decoration: line-through; text-decoration-color: rgba(138,59,51,.35); }
+.neu-wert { color: #1f6b2a; }
+kbd { border: 1px solid #ccc; border-radius: 4px; padding: 0 .3em; font-size: .85em; background: #fafafa; }
+/* Systemprüfung: Bilanz und Tabellen mit Bewertung */
+.sys-bilanz { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.sys { padding: .2rem .7rem; border-radius: 1em; font-weight: 600; font-size: .9rem; border: 1px solid; }
+.sys.ok { background: #e4f4e4; border-color: #9fd29f; color: #1f6b2a; }
+.sys.warn { background: #fdf0c4; border-color: #e3c45a; color: #6b5200; }
+.sys.fehler { background: #fde4e4; border-color: #f0a8a8; color: #9b2c22; }
+.karte .systab { margin-bottom: .4rem; }
+.karte > h2 { margin-top: 1.4rem; }
+.systab th { width: 34%; font-weight: 500; text-align: left; }
+.systab .sys-zeichen { width: 1.6rem; text-align: center; font-weight: 700; }
+.systab tr.sys-ok .sys-zeichen { color: #1f7a3a; }
+.systab tr.sys-warn td, .systab tr.sys-warn th { background: #fffaea; }
+.systab tr.sys-warn .sys-zeichen { color: #a07800; }
+.systab tr.sys-fehler td, .systab tr.sys-fehler th { background: #fdeeee; }
+.systab tr.sys-fehler .sys-zeichen { color: #b3261e; }
+.systab .sys-wert { overflow-wrap: anywhere; }
+.leise { color: var(--leise); }
+/* Protokoll: Zeilen je nach Art pastellfarben hinterlegt, Legende als Filter */
+.protokoll tbody tr td { background: var(--zeile, transparent); }
+.protokoll tbody tr td:first-child { box-shadow: inset 4px 0 0 var(--zeile-rand, transparent); }
+.prot-legende { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0 0 .9rem; }
+.prot-legende a { padding: .2rem .65rem; border: 1px solid var(--linie); border-radius: 1em; font-size: .82rem; color: inherit; text-decoration: none; }
+.prot-legende a:hover { filter: brightness(.96); }
+.prot-legende a b { font-weight: 700; margin-left: .25em; font-variant-numeric: tabular-nums; }
+.prot-anzahl { margin: -.3rem 0 .6rem; font-size: .9rem; color: var(--leise); }
+/* Journal/Bericht: automatisch erzeugte Zeile einer Kassaprüfung */
+.buch tr.pruefzeile td { background: #dff2ec; font-style: italic; }
+.buch tr.pruefzeile td.text { font-weight: 600; }
+.prot-legende a.aktiv { outline: 2px solid var(--akzent); outline-offset: 1px; font-weight: 600; }
+/* Protokoll: Details als „Feld: Wert“ */
+.protokoll .detail { display: inline-block; margin-right: .9em; font-size: .86rem; }
+.protokoll .detail b { font-weight: 600; color: var(--leise); }
+.protokoll .kennung { cursor: help; color: var(--leise); border-bottom: 1px dotted; }
+/* Kontakt-Kachel: Kassaführung/Kassaprüfer mit E-Mail-Links */
+.stand.kontakte { border-top: 4px solid #6b8fb5; flex: 1 1 320px; }
+.stand.kontakte span a { text-transform: none; letter-spacing: 0; }
+.stand.kontakte ul { list-style: none; margin: .25rem 0 0; padding: 0; font-size: .9rem; line-height: 1.55; }
+.stand.kontakte li { overflow-wrap: anywhere; }
+.stand.kontakte li small { display: inline-block; min-width: 6.5em; font-size: .72rem; padding: 0 .4em; border-radius: 1em; margin-right: .3em; text-align: center; }
+.stand.kontakte em { color: var(--leise); font-size: .82rem; }
+
+/* ---- Filterleiste im Journal ---- */
+.filter {
+  display: flex; gap: .6rem; flex-wrap: wrap; align-items: end; background: var(--flaeche);
+  border: 1px solid var(--linie); border-radius: var(--radius); padding: .7rem .9rem; margin-bottom: 1rem;
+}
+.filter label { display: grid; gap: .2rem; font-size: .78rem; color: var(--leise); }
+.filter label.breit { flex: 1; min-width: 180px; }
+.filter input, .filter select { padding: .4rem .5rem; }
+.filter .abstand { flex: 1; }
+
+/* ---- Buchungstabelle (Journal) ----
+   .k-bank/.k-kassa: farbige Kontoüberschriften · td.st: Stand-Spalte · .uebertrag/.summe: gelbe
+   Zeilen · td.saldo: orange Endstände · .aktionen: Spalte mit ✎ und ✕ · tr.umbuchung: blaue Schrift */
+.tabelle-rahmen { overflow-x: auto; background: var(--flaeche); border: 1px solid var(--linie); border-radius: var(--radius); }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+.buch th, .buch td { border: 1px solid var(--linie); padding: .32rem .5rem; }
+.buch thead th { font-weight: 600; text-align: center; white-space: nowrap; }
+.buch .kopf1 th { font-size: 1rem; }
+.buch .kopf1 .links { text-align: left; }
+.buch .k-bank { background: var(--bank); }
+.buch .k-kassa { background: var(--kassa); }
+.buch .kopf2 th { background: rgba(250,250,247,.7); font-size: .8rem; }
+.buch .kopf2 th.st { background: var(--stand); }
+.buch .kopf2 .links { text-align: left; }
+.buch td.zahl { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.buch td.st { background: rgba(212, 247, 234, .35); }
+.buch td.datum { white-space: nowrap; }
+.buch td.mitte { text-align: center; }
+.buch td.text { min-width: 260px; }
+.buch tr:hover td { background-color: rgba(255, 247, 184, .35); }
+.buch tr.umbuchung td.text { color: #3b5f86; }
+.buch .uebertrag td, .buch .summe td { background: var(--gelb); font-weight: 600; }
+.buch td.saldo { background: var(--saldo) !important; font-weight: 700; }
+.buch td.leer { text-align: center; color: var(--leise); padding: 1.5rem; }
+.buch .aktionen { width: 64px; text-align: center; white-space: nowrap; border-left: 2px solid var(--linie); }
+.buch .aktionen a { text-decoration: none; margin-right: .4rem; }
+.anhang { text-decoration: none; margin-left: .3rem; }
+.marke-klein { color: #3b5f86; margin-left: .3rem; }
+
+/* ---- Einfache Listen (Prüfungen, Benutzer, Protokoll, Import-Vorschau) ---- */
+.liste th, .liste td { padding: .5rem .6rem; border-bottom: 1px solid var(--linie); text-align: left; vertical-align: top; }
+.liste th { font-size: .8rem; color: var(--leise); font-weight: 600; background: #fafaf7; }
+.liste td.zahl, .liste th.rechts { text-align: right; font-variant-numeric: tabular-nums; }
+.liste tr.inaktiv td { color: var(--leise); }
+.liste .ok { color: var(--gruen); white-space: nowrap; }
+.liste .warn { color: var(--rot); white-space: nowrap; font-weight: 600; }
+.nowrap { white-space: nowrap; }
+.protokoll code { color: var(--leise); }
+
+/* Mittelgroße Bildschirme: Menü etwas kleiner, damit es in eine Zeile passt */
+@media (max-width: 1360px) { .haupt a { font-size: .87rem; } .marke small { max-width: 16ch; } }
+
+/* ---- Handy / schmale Bildschirme: Felder untereinander, Menü seitlich wischbar ---- */
+@media (max-width: 720px) {
+  .zeile2, .zeile3 { grid-template-columns: 1fr; }
+  .kopf { padding: .5rem .8rem; gap: .6rem; }
+  .haupt { order: 3; flex: 1 1 100%; overflow-x: auto; flex-wrap: nowrap; padding-bottom: .2rem; }
+  .wer { order: 2; margin-left: auto; gap: .6rem; }
+  .wer > .name { display: none; }
+  .haupt a { white-space: nowrap; }
+  .stand { flex: 1 1 140px; min-width: 0; }
+  .karte { padding: 1rem; }
+}
+
+/* ---- Vereins-Banner auf Anmelde- und Einrichtungsseite ---- */
+.banner { display: block; width: 100%; height: auto; border-radius: 8px; margin: 0 0 1.2rem; }
+main.schmal .banner { box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+
+/* ---- CSV-Import: Beispiel-Block und Aufzählung ---- */
+pre.beispiel { background: rgba(250,250,247,.9); border: 1px solid var(--linie); border-radius: 8px; padding: .7rem .9rem; font-size: .78rem; overflow-x: auto; }
+.liste-punkte { padding-left: 1.2rem; margin: .6rem 0 0; }
+.liste-punkte li { margin-bottom: .3rem; }
+.liste.kompakt th { width: 9rem; background: none; }
+
+/* ---- Fußzeile mit Anmeldehinweis, Version und Copyright ---- */
+.fuss { text-align: center; font-size: .75rem; color: var(--leise); padding: 0 1rem 1.5rem; }
+
+/* Rollen-Kennzeichnung */
+.rolle { display: inline-block; padding: .12rem .55rem; border-radius: 999px; font-size: .75rem; font-weight: 600; line-height: 1.4; white-space: nowrap; border: 1px solid; }
+.rolle-admin   { background: #fde8e6; color: #9b2c22; border-color: #f2bdb7; }
+.rolle-kassier { background: #e3f1ec; color: #1f6f5c; border-color: #b5dccd; }
+.rolle-pruefer { background: #e8eef8; color: #2f5687; border-color: #bfd0ea; }
+.rolle-gast    { background: #f1efe9; color: #5d5a52; border-color: #d6d2c6; }
+.fuss .angemeldet { margin-bottom: .35rem; }
+
+/* ---- Hilfe: Benutzerhandbuch als HTML-Seite (views/hilfe.php) ----
+   Alle Regeln sind auf .hilfe-doc beschränkt, damit sie die übrigen Seiten nicht beeinflussen. */
+.hilfe-doc { max-width: 980px; margin: 0 auto 1.2rem; line-height: 1.6; }
+.hilfe-doc .online { background: var(--akzent-hell); border: 1px solid #b5dccd; border-radius: 8px; padding: .6rem .9rem; margin: 0 0 1rem; }
+.hilfe-doc .online a { font-weight: 600; word-break: break-all; }
+.hilfe-doc .kapitel { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: 1.4rem; }
+.hilfe-doc .kapitel a { font-size: .85rem; padding: .3rem .65rem; border: 1px solid var(--linie); border-radius: 999px; text-decoration: none; color: var(--text); background: #fff; white-space: nowrap; }
+.hilfe-doc .kapitel a span { color: var(--akzent); font-weight: 700; }
+.hilfe-doc .kapitel a:hover { border-color: var(--akzent); background: var(--akzent-hell); }
+.hilfe-doc h2.kapitel-titel { font-size: 1.45rem; margin: 2.4rem 0 .8rem; padding-top: 1rem; border-top: 2px solid var(--linie); scroll-margin-top: 80px; display: flex; align-items: baseline; gap: .6rem; }
+.hilfe-doc h2.kapitel-titel .nr { color: var(--akzent); }
+.hilfe-doc h2.kapitel-titel .nach-oben { margin-left: auto; font-size: .9rem; text-decoration: none; color: var(--leise); }
+.hilfe-doc h3 { font-size: 1.12rem; margin: 1.6rem 0 .5rem; }
+.hilfe-doc h4 { font-size: 1rem; margin: 1.2rem 0 .3rem; }
+.hilfe-doc p { margin: 0 0 .7rem; }
+.hilfe-doc ul, .hilfe-doc ol { margin: 0 0 .9rem; padding-left: 1.4rem; }
+.hilfe-doc li { margin-bottom: .3rem; }
+.hilfe-doc .lead { font-size: 1.05rem; }
+.hilfe-doc figure { margin: .8rem 0 1.2rem; }
+.hilfe-doc figure img { display: block; max-width: 100%; height: auto; border: 1px solid var(--linie); border-radius: 8px; background: #fff; }
+.hilfe-doc figure.mittel img { max-width: 86%; }
+.hilfe-doc figure.schmal img { max-width: 72%; }
+.hilfe-doc figure.handy img { max-width: 230px; }
+.hilfe-doc figure.ohne img { border: 0; }
+.hilfe-doc figcaption { font-size: .8rem; color: var(--leise); margin-top: .35rem; }
+.hilfe-doc .nebeneinander { display: flex; gap: 1.4rem; align-items: flex-start; }
+.hilfe-doc .nebeneinander > * { flex: 1; }
+.hilfe-doc table { border-collapse: collapse; width: 100%; margin: .5rem 0 1.1rem; font-size: .9rem; background: rgba(255,255,255,.7); }
+.hilfe-doc th, .hilfe-doc td { border-bottom: 1px solid var(--linie); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+.hilfe-doc th { background: #f4f3ee; font-size: .82rem; }
+.hilfe-doc td.mitte, .hilfe-doc th.mitte { text-align: center; }
+.hilfe-doc .ja { color: var(--gruen); font-weight: 700; }
+.hilfe-doc .nein { color: var(--rot); }
+.hilfe-doc .mono, .hilfe-doc code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .85em; }
+.hilfe-doc .kasten { border-radius: 8px; padding: .7rem 1rem; margin: .8rem 0 1.1rem; border-left: 5px solid; }
+.hilfe-doc .kasten.tipp { background: #e9f4ef; border-color: var(--akzent); }
+.hilfe-doc .kasten.achtung { background: #fdf0e6; border-color: #d9822b; }
+.hilfe-doc .kasten.info { background: #edf2fa; border-color: #1d5ea8; }
+.hilfe-doc .kasten .k { font-weight: 700; display: block; margin-bottom: .2rem; }
+.hilfe-doc .kasten p:last-child, .hilfe-doc .kasten ul:last-child { margin-bottom: 0; }
+.hilfe-doc .rolle { font-size: .78rem; }
+.hilfe-doc .r-admin { background: #fde8e6; color: #9b2c22; border-color: #f2bdb7; }
+.hilfe-doc .r-kassier { background: #e3f1ec; color: #1f6f5c; border-color: #b5dccd; }
+.hilfe-doc .r-pruefer { background: #e8eef8; color: #2f5687; border-color: #bfd0ea; }
+.hilfe-doc .r-gast { background: #f1efe9; color: #5d5a52; border-color: #d6d2c6; }
+.hilfe-doc .knopf { display: inline-block; padding: 0 .45rem; font-size: .85rem; border-radius: 5px; line-height: 1.5; cursor: default; }
+.hilfe-doc .knopf.primaer { background: var(--akzent); border-color: var(--akzent); color: #fff; }
+.hilfe-doc .schritte { counter-reset: s; list-style: none; padding-left: 0; }
+.hilfe-doc .schritte > li { counter-increment: s; position: relative; padding-left: 2.2rem; margin-bottom: .6rem; }
+.hilfe-doc .schritte > li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--akzent); color: #fff; font-weight: 700; font-size: .8rem; display: grid; place-items: center; }
+.hilfe-doc pre.csv { background: #f6f5f0; border: 1px solid var(--linie); border-radius: 8px; padding: .7rem .9rem; font-size: .76rem; overflow-x: auto; }
+/* Hilfe: ausführliches Inhaltsverzeichnis, Kapitel-Navigation, Stichwortverzeichnis */
+.hilfe-doc [id] { scroll-margin-top: 140px; }
+.hilfe-doc .nach-oben { font-size: .8rem; font-weight: 400; text-decoration: none; color: var(--leise); margin-left: .5rem; white-space: nowrap; }
+.hilfe-doc h3 .nach-oben { opacity: .55; }
+.hilfe-doc h3:hover .nach-oben { opacity: 1; }
+.hilfe-inhalt { border: 1px solid var(--linie); border-radius: 10px; background: #fff; padding: .9rem 1.1rem 1rem; margin: 0 0 1.6rem; }
+.hilfe-inhalt-kopf { display: flex; align-items: center; justify-content: space-between; gap: .8rem; flex-wrap: wrap; margin-bottom: .5rem; }
+.hilfe-inhalt-kopf h2 { margin: 0; font-size: 1.25rem; }
+.hilfe-doc .sw-link { font-size: .9rem; font-weight: 600; text-decoration: none; padding: .3rem .7rem; border: 1px solid var(--akzent); border-radius: 999px; }
+.hilfe-doc .sw-link:hover { background: var(--akzent-hell); }
+.toc-baum { columns: 2 320px; column-gap: 2rem; list-style: none; padding: 0; margin: 0; }
+.toc-baum ol { list-style: none; padding: 0 0 0 1.6rem; margin: .1rem 0 .3rem; }
+.toc-baum li { margin: 0; }
+.toc-baum > li.toc-kap { break-inside: avoid; margin-bottom: .55rem; }
+.toc-baum a { display: block; text-decoration: none; color: var(--text); padding: .12rem .3rem; border-radius: 5px; line-height: 1.35; }
+.toc-baum a:hover { background: var(--akzent-hell); }
+.toc-baum .nr { color: var(--akzent); font-weight: 700; display: inline-block; min-width: 2.3em; }
+.toc-baum > li > a { font-weight: 700; font-size: 1rem; border-bottom: 1px solid #ecebe6; border-radius: 5px 5px 0 0; }
+.toc-baum > li > a .nr { min-width: 1.6em; }
+.toc-baum li li > a { font-size: .9rem; }
+.toc-baum .toc-unter > a { font-size: .82rem; color: var(--leise); padding-left: 2.6em; }
+.toc-baum > li > ol > .toc-unter > a { padding-left: .3rem; }
+.toc-baum .nur-admin { font-size: .7rem; font-weight: 600; color: #9b2c22; background: #fde8e6; border-radius: 999px; padding: 0 .45rem; margin-left: .4rem; vertical-align: middle; }
+.kapitel-navi { display: flex; justify-content: space-between; gap: .6rem; flex-wrap: wrap; margin: 1.6rem 0 0; padding: .6rem 0; border-top: 1px dashed var(--linie); font-size: .88rem; }
+.kapitel-navi a { text-decoration: none; padding: .25rem .6rem; border-radius: 6px; background: #f4f3ee; color: var(--text); }
+.kapitel-navi a:hover { background: var(--akzent-hell); }
+.stichwoerter .sw-suche { display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; margin: .3rem 0 .7rem; }
+.stichwoerter .sw-suche input { flex: 1; min-width: 220px; max-width: 420px; font: inherit; padding: .45rem .7rem; border: 1px solid var(--linie); border-radius: 8px; }
+.stichwoerter .sw-leer { color: var(--leise); font-size: .9rem; }
+.sw-buchstaben { display: flex; flex-wrap: wrap; gap: .25rem; margin: 0 0 1rem; }
+.sw-buchstaben a { min-width: 2rem; text-align: center; padding: .2rem .4rem; border: 1px solid var(--linie); border-radius: 6px; text-decoration: none; font-weight: 700; color: var(--akzent); background: #fff; }
+.sw-buchstaben a:hover { background: var(--akzent-hell); }
+.sw-liste { columns: 2 300px; column-gap: 2rem; }
+.sw-gruppe { break-inside: avoid; margin-bottom: .8rem; }
+.hilfe-doc .sw-gruppe h3.sw-buchstabe { margin: 0 0 .2rem; font-size: 1.05rem; color: var(--akzent); border-bottom: 1px solid var(--linie); }
+.sw-gruppe ul { list-style: none; padding: 0; margin: 0; }
+.hilfe-doc .sw-gruppe li { margin: 0; padding: .12rem 0; font-size: .9rem; line-height: 1.4; }
+.sw-gruppe .sw-wort { font-weight: 600; }
+.sw-gruppe .sw-stellen a { text-decoration: none; font-variant-numeric: tabular-nums; }
+.sw-gruppe .sw-stellen a:hover { text-decoration: underline; }
+.hilfe-doc h4 { scroll-margin-top: 140px; }
+@media (max-width: 700px) { .hilfe-doc h2.kapitel-titel { flex-wrap: wrap; } .hilfe-doc table { display: block; overflow-x: auto; } .hilfe-doc .nebeneinander { align-items: stretch; } .hilfe-doc .nebeneinander > * { min-width: 0; max-width: 100%; } .toc-baum, .sw-liste { columns: 1; } .toc-baum ol { padding-left: .9rem; } .toc-baum .toc-unter > a { padding-left: 1.6em; } }
+@media print { .hilfe-inhalt, .kapitel-navi, .stichwoerter .sw-suche, .sw-buchstaben { display: none; } }
+.hilfe-doc .ende { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--linie); color: var(--leise); font-size: .85rem; }
+@media (max-width: 720px) {
+  .hilfe-doc .nebeneinander { flex-direction: column; }
+  .hilfe-doc figure.mittel img, .hilfe-doc figure.schmal img { max-width: 100%; }
+  .hilfe-doc table { font-size: .8rem; display: block; overflow-x: auto; }
+}
+
+.wer a.aktiv { font-weight: 700; }
+.warn-klein { color: #b3261e; }
+/* Am Handy nur „🔑 Passwort“ statt „🔑 Passwort ändern“ anzeigen (Platz sparen) */
+@media (max-width: 720px) { .wer a[href*="passwort"] { font-size: 0; } .wer a[href*="passwort"]::before { content: "🔑 Passwort"; font-size: .85rem; } }

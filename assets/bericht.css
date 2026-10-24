@@ -1,0 +1,138 @@
+/*
+ * =====================================================================
+ *  Kassabuch – Gestaltung des Berichts / der Druckansicht (assets/bericht.css)
+ * =====================================================================
+ *
+ *  Nachbildung des bisherigen Excel-Kassabuchs auf A4 quer:
+ *    - Konto BANK gelb (#ffff99), Konto Handkassa grau (#d9d9d9), Stand türkis (#66ffcc)
+ *    - Übertrag- und Summenzeilen gelb (#ffff00), Saldo-Felder orange (#ffc000)
+ *    - Vereinslogo als blasses Wasserzeichen hinter jeder Seite
+ *  Maße in Millimetern (mm) bzw. Punkt (pt), damit der Ausdruck genau passt.
+ *
+ *  Am Bildschirm werden die Seiten als „Blätter“ mit Schatten gezeigt; beim
+ *  Drucken (@media print) entfallen Werkzeugleiste und Schatten, und nach jeder
+ *  Seite folgt ein Seitenumbruch.
+ *
+ *  print-color-adjust: exact sorgt dafür, dass die Hintergrundfarben gedruckt
+ *  werden (im Druckdialog zusätzlich „Hintergrundgrafiken“ einschalten).
+ */
+/* Papierformat A4 quer mit schmalen Rändern */
+@page { size: A4 landscape; margin: 9mm 10mm; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; background: #e9e8e3; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; color: #000; }
+
+/* ---- Werkzeugleiste oben (Schnellauswahl, von/bis, Drucken) – wird nicht gedruckt ---- */
+.werkzeug {
+  position: sticky; top: 0; z-index: 3; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
+  padding: .6rem 1rem; background: #fff; border-bottom: 1px solid #ccc; font-size: 14px;
+}
+.werkzeug form { display: flex; gap: .6rem; align-items: center; margin: 0; }
+.werkzeug input, .werkzeug button { font: inherit; padding: .35rem .6rem; border: 1px solid #bbb; border-radius: 6px; background: #fff; }
+.werkzeug .drucken { background: #1f6f5c; border-color: #1f6f5c; color: #fff; font-weight: 600; cursor: pointer; }
+.werkzeug .tipp { color: #666; font-size: 12px; }
+.werkzeug .schnell { display: flex; gap: .3rem; flex-wrap: wrap; padding-right: .6rem; border-right: 1px solid #ddd; }
+.werkzeug .schnell a { padding: .35rem .7rem; border: 1px solid #bbb; border-radius: 999px; text-decoration: none; color: #1f2421; background: #fff; white-space: nowrap; }
+.werkzeug .schnell a:hover { border-color: #1f6f5c; }
+.werkzeug .schnell a.aktiv { background: #e3f1ec; border-color: #1f6f5c; color: #1f6f5c; font-weight: 600; }
+
+/* ---- Ein Blatt: am Bildschirm mit Schatten, Wasserzeichen über ::before ---- */
+.seite {
+  position: relative; width: 277mm; min-height: 190mm; margin: 12px auto; padding: 8mm 9mm 6mm 6mm;
+  background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,.15);
+}
+.seite::before {
+  content: ""; position: absolute; z-index: 0; pointer-events: none;
+  left: 28%; top: 12%; width: 125mm; height: 125mm;
+  background: url("img/hintergrund.png") center / contain no-repeat;
+}
+.seite > * { position: relative; z-index: 1; }
+/* Kopfzeile jeder Berichtsseite: Logo + Verein | Titel + Zeitraum | Prüfstatus + Seite */
+.seitenkopf { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 4mm;
+  height: 7mm; margin: 0 0 2mm; padding-bottom: 1mm; border-bottom: 1.2px solid #1f6f5c; font-size: 9pt; color: #1f2421; }
+.seitenkopf .sk-verein { display: flex; align-items: center; gap: 2mm; min-width: 0; font-weight: 600; }
+.seitenkopf .sk-verein img { height: 6mm; width: auto; }
+.seitenkopf .sk-verein span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.seitenkopf .sk-titel { text-align: center; white-space: nowrap; }
+.seitenkopf .sk-titel strong { color: #1f6f5c; font-size: 10.5pt; }
+.seitenkopf .sk-rechts { text-align: right; white-space: nowrap; color: #555; }
+.seitenkopf .sk-geprueft { color: #1f6f5c; font-weight: 600; }
+/* Prüf-ID und Fußzeile liegen absolut auf der Seite */
+.seite > .seiten-id, .seite > .seitenfuss { position: absolute; }
+/* Prüf-ID senkrecht am rechten Rand jeder Seite */
+.seiten-id {
+  position: absolute; right: 1.5mm; top: 40mm; writing-mode: vertical-rl;
+  font-size: 8.5pt; font-weight: 700; letter-spacing: .02em;
+}
+.seitenfuss { position: absolute; left: 6mm; right: 9mm; bottom: 3mm; display: flex; justify-content: space-between; gap: 6mm; font-size: 7.5pt; color: #555; }
+
+/* ---- Buchungstabelle: feste Spaltenbreiten (colgroup), schwarze Rahmen, feste Zeilenhöhe ----
+   .sp = schmale weiße Trennspalte zwischen Text, Bank und Handkassa */
+table.buch { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 10.5pt; }
+col.c-datum { width: 19mm; } col.c-beleg { width: 14mm; } col.c-text { width: auto; }
+col.c-sp { width: 4mm; } col.c-betrag { width: 22mm; }
+.buch td, .buch th { border: 1px solid #000; padding: 0 1.4mm; height: 6.1mm; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.buch .kopf1 .sp { border-left: 0; }
+.buch tbody td.text { font-size: 10pt; }
+/* Automatisch erzeugte Zeile einer Kassaprüfung: kursiv, leicht grün */
+.buch tr.pruefzeile td.text { font-style: italic; font-weight: 600; background: #e3f3ec; }
+.buch .sp { border-top: 0 !important; border-bottom: 0 !important; background: #fff !important; }
+.buch thead .titel { border: 0; text-align: center; font-weight: 700; font-size: 11.5pt; }
+.buch .kopf1 th { height: 9mm; font-size: 13pt; font-weight: 700; border-width: 1.5px; }
+.buch .kopf1 .k-bank { background: #ffff99; }
+.buch .kopf1 .k-kassa { background: #d9d9d9; }
+.buch .kopf2 th { height: 8mm; font-weight: 400; font-size: 11.5pt; }
+.buch .kopf2 th.klein { font-size: 7.5pt; white-space: normal; line-height: 1; padding: 0 .5mm; text-overflow: clip; }
+.buch .kopf2 th.ea { background: #ffff99; font-weight: 700; color: #000; font-size: 10.5pt; }
+.buch .kopf2 th.st { background: #66ffcc; font-weight: 700; font-size: 14pt; }
+.buch thead tr.kopf2 th:nth-child(n+9).ea { background: #d9d9d9; }   /* Handkassa: grau wie die Überschrift */
+
+.buch tbody td.zahl { text-align: right; font-variant-numeric: tabular-nums; }
+.buch tbody td.mitte, .buch tbody td.datum { text-align: center; }
+.buch tbody td.rechts { text-align: right; }
+.buch .fett { font-weight: 700; }
+.buch .kursiv { font-style: italic; font-weight: 700; }
+
+/* ---- Übertrag, Zwischensummen, Gesamtsummen ---- */
+.buch tr.uebertrag td { background: #ffff00; border-top: 2px solid #000; }
+.buch tr.uebertrag td.sp { border-top: 0; }
+.buch td.saldo { background: #ffc000 !important; }
+.buch tr.zwischen td { background: #ffff00; border-top: 2px solid #000; border-bottom: 2px solid #000; }
+.buch tr.zwischen td.sp, .buch tr.gesamt td.sp { border: 0; }
+.buch tr.luecke td { border: 0; height: 4mm; background: #fff; }
+.buch tr.gesamt td { background: #ffff00; border: 2px solid #000; height: 7.5mm; font-weight: 700; }
+.buch tr.gesamt td:nth-child(2) { font-size: 12.5pt; }
+.buch tr.gesamt td.zahl { font-weight: 400; }
+.buch tr.gesamt td.saldo { font-weight: 700; }
+
+/* ---- Letzte Seite: QR-Code, Prüf-ID, Prüfvermerk und Unterschriftszeilen ---- */
+.pruefblock { display: flex; gap: 8mm; margin-top: 6mm; align-items: flex-start; }
+.qr { width: 30mm; min-height: 30mm; margin-top: 12mm; flex: none; }
+.qr svg { display: block; width: 30mm; height: 30mm; }
+.qr-link { font-size: 6.5pt; text-align: center; margin-top: .5mm; color: #333; word-break: break-all; }
+.pruef-text { flex: 1; min-width: 0; font-size: 10.5pt; }
+.qr-bericht .qr-link { font-size: 7pt; word-break: normal; }
+.qr-bericht .qr-link strong { font-weight: 600; }
+.qr-herkunft { margin: 0 auto 4mm; max-width: 277mm; padding: .6rem .9rem; border-radius: 8px; font: 10pt/1.45 system-ui, sans-serif; border: 1px solid; }
+.qr-herkunft.ok { background: #e8f6ee; border-color: #9fd4b4; }
+.qr-herkunft.warn { background: #fdf0e3; border-color: #e8b27a; }
+@media print { .qr-herkunft { display: none; } }
+.pid { margin-left: 36mm; font-family: "Arial Narrow", Arial, sans-serif; }
+.vermerk { font-weight: 700; margin: 1mm 0 8mm; display: flex; gap: 6mm; align-items: baseline; white-space: nowrap; }
+.vermerk .pdatum { font-size: 10pt; min-width: 40mm; }
+.vermerk .von { margin-left: 2mm; }
+.unterschrift { display: grid; grid-template-columns: 36mm 46mm 6mm minmax(30mm, 1fr) minmax(30mm, 1fr); gap: 0 4mm; align-items: end; height: 12mm; }
+.unterschrift .rolle { text-align: right; }
+.unterschrift .name { text-align: right; }
+.unterschrift .linie { border-bottom: 3px double #000; height: 6mm; }
+.leerlinie { display: inline-block; border-bottom: 1px solid #000; width: 45mm; height: 4mm; }
+.fusszeile { margin-top: 8mm; font-size: 10pt; }
+
+/* ---- Nur beim Drucken: Werkzeugleiste ausblenden, Seitenumbruch nach jeder Seite ---- */
+@media print {
+  body { background: #fff; }
+  .werkzeug { display: none; }
+  .seite { margin: 0; box-shadow: none; width: auto; min-height: 0; padding: 0 6mm 0 0; break-after: page; page-break-after: always; }
+  .seite:last-of-type { break-after: auto; page-break-after: auto; }
+  .seiten-id { right: 0; }
+  .seitenfuss { bottom: -4mm; left: 0; right: 6mm; }
+}
